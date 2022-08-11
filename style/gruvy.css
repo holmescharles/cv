@@ -1,0 +1,87 @@
+@import "gruvbox.css";
+@import "fonts.css";
+
+
+* {
+    font-family: "Meslo";
+    background: var(--bg);
+    color: var(--fg);
+}
+
+body {
+    padding-left: 19%;
+    padding-right: 19%;
+}
+
+.author, .title {
+    display: none;
+}
+
+.bar {
+    font-size: small;
+}
+
+h1 {
+    color: var(--yellow-dim);
+    text-align: center;
+    padding: 0.518em 1em 0.1em;
+}
+
+h1 + ul {
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+h1 + ul > li {
+    display: inline;
+    white-space: pre;
+    list-style-type: none;
+}
+
+h1 + ul > li:after {
+    content: "   |   ";
+}
+
+h1 + ul > li:last-child:after {
+    content: "";
+}
+
+h2 {
+    color: var(--yellow-dim);
+    padding-top: 2em;
+}
+
+h3, h4, h5, h6 {
+    color: var(--aqua-dim);
+}
+
+dt {
+    color: var(--red-dim);
+    padding-top: 1em;
+}
+
+dt::after {
+    content: ":";
+}
+
+strong {
+    color: var(--aqua-dim);
+}
+
+a {
+    text-decoration: none;
+    color: var(--blue-dim);
+}
+
+li {
+    list-style-type: ;
+}
+
+.nobullet * {
+    list-style-type: none;
+}
+
+.csl-entry{
+    padding-bottom: 0.618em;
+}
