@@ -21,3 +21,7 @@
     font-weight: bold;
     font-style: italic;
 }
+
+* {
+    font-family: "Meslo";
+}

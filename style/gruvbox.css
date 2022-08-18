@@ -31,3 +31,20 @@
   --gray-dim:   #a89984;
   --orange-dim: #d65d0e;
 }
+
+* {
+    background: var(--bg);
+    color: var(--fg);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--blue-dim);
+}
+
+em {
+    color: var(--fg);
+}
+
+strong {
+    color: var(--blue);
+}

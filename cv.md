@@ -8,13 +8,16 @@ bibliography_extracurricular: refs/extracurricular.bib
 nocite: "@*"
 
 csl: refs/jneuro-rchronological-sort.csl
-css: /home/chuck/Dropbox/cv/style/style.css
+margin-top: 0.85in
+margin-left: 0.85in
+margin-right: 0.85in
+margin-bottom: 0.85in
 ...
 
-::: bar
-- Neuroscientist
-- Engineer
-- Programmer
+::: preamble
+<!-- Neuroscientist | Engineer | Programmer -->
+
+[holmes@wustl.edu](mailto:holmes@wustl.edu)
 :::
 
 # Education
@@ -22,7 +25,8 @@ css: /home/chuck/Dropbox/cv/style/style.css
 2013--present
 : **Washington University in St. Louis**, St. Louis, MO
 : Doctor of Philosophy in Biomedical Engineering
-: Expected Decemeber 2022
+: *Dissertation title: Mechanisms of Primate Working Memory*
+: *Expected December 2022*
 
 2013--2017
 : **Washington University in St. Louis**, St. Louis, MO
@@ -31,6 +35,7 @@ css: /home/chuck/Dropbox/cv/style/style.css
 2008--2012
 : **Washington University in St. Louis**, St. Louis, MO
 : Bachelor of Science in Electrical Engineering
+: *Minor: Computer Science*
 
 # Employment
 
@@ -56,10 +61,11 @@ css: /home/chuck/Dropbox/cv/style/style.css
 
 2009--2012
 : **Lickenbrock Technologies, LLC**, St. Louis, MO
+: Software Engineering Intern
 : Investigated the application of feature extraction algorithms for cell imaging.
 : Developed and implemented a data backup systems.
 
-# Publications
+# Works
 
 ## Peer-Reviewed Publications
 
@@ -73,7 +79,7 @@ css: /home/chuck/Dropbox/cv/style/style.css
 ::: {#refs_grad}
 :::
 
-### Conferences
+### Undergraduate
 
 ::: {#refs_undergrad}
 :::
@@ -85,14 +91,17 @@ css: /home/chuck/Dropbox/cv/style/style.css
 
 # Teaching Experience
 
-- **Teaching Assistant**, Bioelectric Phenomena, Washington University in St. Louis
-- **Discussion Leader**, Neural Systems, Washington University in St. Louis
+- Discussion Leader, *Neural Systems, Washington University in St. Louis*
+- Graduate Teaching Assistant, *Bioelectric Phenomena, Washington University in St. Louis*
+- Undergraduate Teaching Assistant, *Introduction to Computer Science, Washington University in St. Louis*
 
-# Honors
+# Awards and Honors
 
+- Cognitive and Computational Systems Neuroscience Pathway Traineeship
 - Eta Kappa Nu
-- The David Levy Electrical and Systems Engineering Award for Design Excellence, 2012
-- Dean's List, Washington University in St. Louis
+- David Levy Electrical and Systems Engineering Award for Design Excellence, *2012*
+- National Science Foundation Supplemental Grant for Undergraduate Research
+- Dean's List, *Washington University in St. Louis*
 
 # Interests
 
@@ -100,9 +109,3 @@ css: /home/chuck/Dropbox/cv/style/style.css
 - Cycling
 - Ballroom dance
 - Digital photography
-
-# Links
-
-- [holmes@wustl.edu](mailto:holmes@wustl.edu)
-- [holmescharles](https://github.com/holmescharles)
-- [0000-0002-2429-3237](https://orcid.org/0000-0002-2429-3237)
