@@ -2,10 +2,8 @@ PANDOC := \
 	pandoc \
 	--pdf-engine=wkhtmltopdf \
 	--from=markdown \
-	--citeproc \
 	--standalone \
 	--css=$(abspath style/cv.css) \
-	--lua-filter=filters/multiple-bibliographies
 OUTNAME := cv
 
 html: build/$(OUTNAME).html
