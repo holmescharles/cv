@@ -1,26 +1,35 @@
+SHELL := /bin/bash
+
+PARTS = \
+	parts/preamble.md \
+	parts/education.md \
+	parts/employment.md \
+	works/works.md \
+	parts/teaching.md \
+	parts/awards.md \
+	parts/interests.md
+
 PANDOC := \
 	pandoc \
 	--pdf-engine=wkhtmltopdf \
 	--from=markdown \
 	--standalone \
+	--metadata-file=metadata.yaml \
 	--css=$(abspath style/cv.css) \
+
 OUTNAME := cv
 
-html: build/$(OUTNAME).html
-pdf: build/$(OUTNAME).pdf
-tex: build/$(OUTNAME).tex
-
-build/$(OUTNAME).html: cv.md build
-	$(PANDOC) --css=$(abspath style/html.css) --output=$@ $<
-build/$(OUTNAME).pdf: cv.md build
-	$(PANDOC) --css=$(abspath style/pdf.css) --output=$@ $<
-build/$(OUTNAME).tex: cv.md build
-	$(PANDOC) --css=$(abspath style/pdf.css) --output=$@ $<
-
-all: html pdf tex
-build:
-	mkdir -p build
+no_default:
+md: $(OUTNAME).md
+pdf: $(OUTNAME).pdf
+html: $(OUTNAME).html
 clean:
-	rm -rf build
-.FORCE:
-.PHONY: .FORCE clean all
+	rm -rf $(OUTNAME).{md,pdf,html,tex}
+.PHONY: no_default md html pdf clean
+
+$(OUTNAME).md: $(PARTS)
+	./gapcat $^ > $@
+$(OUTNAME).html: $(OUTNAME).md
+	$(PANDOC) --css=$(abspath style/html.css) --output=$@ $<
+$(OUTNAME).pdf: $(OUTNAME).md
+	$(PANDOC) --css=$(abspath style/pdf.css) --output=$@ $<

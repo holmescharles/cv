@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+h1() { echo ; echo "# $@" ; echo ; }
+h2() { echo ; echo "## $@" ; echo ; }
+
+h1 Publications
+./bib2txt bibs/publications.bib
+
+h1 Conferences
+
+h2 Graduate
+./bib2txt bibs/grad.bib
+
+h2 Undergraduate
+./bib2txt bibs/undergrad.bib
+
+h2 Extracurricular
+./bib2txt bibs/extracurricular.bib

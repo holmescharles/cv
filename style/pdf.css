@@ -1,0 +1,16 @@
+body {
+    background-color: #FFFFFF;
+}
+.title {
+    text-align: center;
+}
+
+h1, h2 {
+    page-break-inside: avoid;
+}
+h1::after, h2::after {
+    content: "";
+    display: block;
+    height: 100px;
+    margin-bottom: -100px;
+}
