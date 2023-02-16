@@ -1,7 +1,8 @@
 OUTPUT = works.md
 
 $(OUTPUT): $(wildcard bibs/*.bib)
-	./make > $@
+	@echo ATTENTION - add "shared first authorship" comment
+	./build_md > $@
 clean:
 	rm -rf $(OUTPUT)
 

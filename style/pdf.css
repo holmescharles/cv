@@ -1,16 +1,19 @@
 body {
-    background-color: #FFFFFF;
+    background-color: #ffffff;
+    font-family: sans-serif;
 }
+
 .title {
     text-align: center;
 }
 
-h1, h2 {
+h1, h2, p {
     page-break-inside: avoid;
 }
-h1::after, h2::after {
-    content: "";
-    display: block;
-    height: 100px;
-    margin-bottom: -100px;
-}
+
+/* h1::after, h2::after, p::after { */
+/*     content: ""; */
+/*     display: block; */
+/*     height: 100px; */
+/*     margin-bottom: -100px; */
+/* } */

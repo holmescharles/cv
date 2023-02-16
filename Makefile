@@ -1,35 +1,41 @@
-SHELL := /bin/bash
+SHELL = /bin/bash
 
 PARTS = \
 	parts/preamble.md \
 	parts/education.md \
+	parts/works.md \
 	parts/employment.md \
-	works/works.md \
 	parts/teaching.md \
 	parts/awards.md \
-	parts/interests.md
+	parts/interests.md \
 
-PANDOC := \
+PANDOC = \
 	pandoc \
 	--pdf-engine=wkhtmltopdf \
+	--pdf-engine-opt=--enable-local-file-access \
 	--from=markdown \
-	--standalone \
 	--metadata-file=metadata.yaml \
-	--css=$(abspath style/cv.css) \
+	--css=style/cv.css \
 
-OUTNAME := cv
+all: pdf html
 
-no_default:
-md: $(OUTNAME).md
-pdf: $(OUTNAME).pdf
-html: $(OUTNAME).html
+cv.md: $(PARTS)
+	for part in $^ ; do cat "$$part" ; echo ; done > $@
+
+pdf: cv.pdf
+cv.pdf: cv.md metadata.yaml style/cv.css style/pdf.css
+	$(PANDOC) --css=style/pdf.css --output=cv.pdf $<
+
+html: cv.html
+cv.html: cv.md metadata.yaml style/cv.css style/html.css
+	$(PANDOC) --self-contained --css=style/html.css --output=cv.html $<
+
+push: cv.html
+	scp $< toor@eye:/tmp/cv.html
+	ssh -t toor@eye sudo mv /tmp/cv.html /home/httpd/htdocs/lab/people/chuck.html
+
 clean:
-	rm -rf $(OUTNAME).{md,pdf,html,tex}
-.PHONY: no_default md html pdf clean
+	rm -rf cv.{md,pdf,html}
+.PHONY: all html pdf push clean
 
 $(OUTNAME).md: $(PARTS)
-	./gapcat $^ > $@
-$(OUTNAME).html: $(OUTNAME).md
-	$(PANDOC) --css=$(abspath style/html.css) --output=$@ $<
-$(OUTNAME).pdf: $(OUTNAME).md
-	$(PANDOC) --css=$(abspath style/pdf.css) --output=$@ $<
