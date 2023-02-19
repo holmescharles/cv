@@ -6,7 +6,7 @@ SHELL = /bin/bash
 
 PARTS = \
 	../parts/education.md \
-	../parts/positions.md \
+	../parts/employment.md \
 	../parts/supp-education.md \
 	../parts/honors.md \
 	../parts/teaching.md \
