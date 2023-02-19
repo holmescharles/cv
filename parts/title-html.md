@@ -1,5 +1,5 @@
 ---
-title: Charles Damian (Chuck) Holmes
+title: Charles Damian "Chuck" Holmes
 ---
 
 ::: preamble
