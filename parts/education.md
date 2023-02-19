@@ -1,10 +1,13 @@
 # Education
 
-Ph.D. in Biomedical Engineering, Washington University in St. Louis, *2022*
+2022
+: Ph.D. in Biomedical Engineering, Washington University in St. Louis
 
-M.S. in Biomedical Engineering, Washington University in St. Louis, *2017*
+2017
+: M.S. in Biomedical Engineering, Washington University in St. Louis
 
-B.S. in Electrical Engineering, Washington University in St. Louis, *2012*
+2012
+: B.S. in Electrical Engineering, Washington University in St. Louis
 
 <!-- 2022 -->
 <!-- : **Washington University in St. Louis**, St. Louis, MO -->
