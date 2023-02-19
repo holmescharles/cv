@@ -1,5 +1,9 @@
 # Teaching Experience
 
-- Discussion Leader, *Neural Systems, Washington University in St. Louis*
-- Graduate Teaching Assistant, *Bioelectric Phenomena, Washington University in St. Louis*
-- Undergraduate Teaching Assistant, *Introduction to Computer Science, Washington University in St. Louis*
+Neural Systems, Discussion Leader, *2019 -- 2021*
+
+CCSN Pathway Journal Club, Organizer, *2014 -- 2015*
+
+Bioelectric Phenomena, Graduate Teaching Assistant, *2014*
+
+Introduction to Computer Science, Undergraduate Teaching Assistant, *2009*

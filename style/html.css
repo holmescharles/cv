@@ -1,5 +1,25 @@
 body {
-    /* background-color: #FFFFFF; */
-    padding-left: 19%;
-    padding-right: 19%;
+  padding-left: 19%;
+  padding-right: 19%;
+}
+
+.preamble, h1, h2, h3, h4, h5, h6 {
+  text-align: center;
+}
+
+h1 {
+  margin-top: 2em;
+}
+
+h2 {
+  margin-top: 1.4em;
+}
+
+dt {
+  width: 20%;
+}
+
+dd {
+  margin-left: 25%;
+  margin-bottom: 1em;
 }
