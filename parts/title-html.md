@@ -1,3 +1,7 @@
+---
+title: Charles Damian (Chuck) Holmes
+---
+
 ::: preamble
 ![](../icons/location.png){height=1em} [Saint Louis, Missouri](https://goo.gl/maps/5yczHh19iQcaPsmv5)
 | ![](../icons/email.png){height=1em} [holmes@wustl.edu](mailto:holmes@wustl.edu)

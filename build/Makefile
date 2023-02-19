@@ -18,27 +18,26 @@ PANDOC = \
 	--pdf-engine=wkhtmltopdf \
 	--pdf-engine-opt=--enable-local-file-access \
 	--from=markdown \
-	--metadata-file=../metadata.yaml \
 	--css=../style/cv.css \
 
 all: html pdf pdf-serif
 pdfs: pdf pdf-serif
 
-cv-html.md: ../parts/preamble-html.md $(PARTS)
-cv-pdf.md: ../parts/preamble-pdf.md $(SUMMARY) $(PARTS)
+cv-html.md: ../parts/title-html.md $(PARTS)
+cv-pdf.md: ../parts/title-pdf.md $(SUMMARY) $(PARTS)
 cv-%.md:
 	for part in $^ ; do cat "$$part" ; echo ; done > $@
 
 html: cv.html
-cv.html: cv-html.md ../metadata.yaml ../style/cv.css ../style/html.css
+cv.html: cv-html.md ../style/cv.css ../style/html.css
 	$(PANDOC) --ascii --standalone --embed-resource --css=../style/html.css --output=cv.html $<
 
 pdf: cv.pdf
-cv.pdf: cv-pdf.md ../metadata.yaml ../style/cv.css ../style/pdf.css
+cv.pdf: cv-pdf.md ../style/cv.css ../style/pdf.css
 	$(PANDOC) --css=../style/pdf.css --output=$@ $<
 
 pdf-serif: cv-serif.pdf
-cv-serif.pdf: cv-pdf.md ../metadata.yaml ../style/cv.css ../style/pdf.css ../style/serif.css
+cv-serif.pdf: cv-pdf.md ../style/cv.css ../style/pdf.css ../style/serif.css
 	$(PANDOC) --css=../style/pdf.css --css=../style/serif.css --output=$@ $<
 
 push: cv.html cv.pdf cv-serif.pdf
