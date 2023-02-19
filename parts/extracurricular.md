@@ -4,6 +4,6 @@ Washington University, Tau Kappa Epsilon Fraternity, Chapter Advisor
 
 Saint Louis University, Sazon Acrobatic Latin Dance Team
 
-Washington University, Carnaval, Choreographer
+Washington University, Association of Latin American Students, Carnaval Cultural Showcase, Choreographer
 
-Hobbies: *Rock climbing, Cycling, Photography*
+Hobbies: *ballroom dance, cycling, photography, rock climbing*
