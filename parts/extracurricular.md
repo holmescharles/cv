@@ -1,9 +1,9 @@
 # Extracurricular Activities
 
-Washington University, Tau Kappa Epsilon Fraternity, Chapter Advisor
+Chapter Advisor, Tau Kappa Epsilon, Washington University in St. Louis
 
-Saint Louis University, Sazon Acrobatic Latin Dance Team
+Dancer, Sazon Acrobatic Latin Dance Team, Saint Louis University
 
-Washington University, Association of Latin American Students, Carnaval Cultural Showcase, Choreographer
+Choreographer and Dancer, Association of Latin American Students Carnaval Cultural Showcase, Washington University in St. Louis
 
 Hobbies: *ballroom dance, cycling, photography, rock climbing*

@@ -1,16 +1,16 @@
 # Employment
 
 2022 -- present
-: Washington University in St. Louis, Staff Scientist
+: Staff Scientist, Department of Neuroscience, Washington University in St. Louis
 
 2012 -- 2013
-: The Boeing Company, Software Engineer
+: Software Engineer, The Boeing Company
 
 2012
-: Neurolutions, LLC, Consultant
+: Consultant, Neurolutions, LLC
 
 2010 -- 2012
-: Washington University Student Technology Services, Level I Technician
+: Level I Technician, Student Technology Services, Washington University in St. Louis
 
 2009 -- 2012
-: Lickenbrock Technologies, LLC, Software Engineering Intern
+: Software Engineering Intern, Lickenbrock Technologies, LLC
