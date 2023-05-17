@@ -1,11 +1,8 @@
 SHELL = /bin/bash
 
-# comment out to exclude
-# also, you may need to reformat css margins
-# SUMMARY = ../parts/summary.md
+$(info Summary $(if $(SUMMARY),included,excluded))
 
 PARTS = \
-	../parts/title-html.md \
 	$(if $(SUMMARY), ../parts/summary.md) \
 	../parts/education.md \
 	../parts/employment.md \
@@ -25,7 +22,7 @@ PANDOC = \
 all: html pdf-sans pdf-serif
 pdfs: pdf-sans pdf-serif
 
-cv-html.md: $(PARTS)
+cv-html.md: ../parts/title-html.md $(PARTS)
 cv-pdf.md: ../parts/title-pdf.md $(PARTS)
 cv-%.md:
 	for part in $^ ; do cat "$$part" ; echo ; done > $@
