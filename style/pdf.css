@@ -2,9 +2,9 @@
   font-size: xx-large;
 }
 
-body {  /* default is gray, eww */
-  background-color: #ffffff;
-}
+/* body {  /1* default is gray, eww *1/ */
+/*   background-color: #ffffff; */
+/* } */
 
 h1 {
   margin: 0.2em;
@@ -41,14 +41,4 @@ p {
 .summary p{
   text-indent: 0;
   padding-left: 0;
-}
-
-dt {
-  width: 8em;
-}
-
-dd {
-  margin-top: 0.3em;
-  margin-left: 10em;
-  margin-bottom: 0.3em;
 }

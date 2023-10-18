@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 convert() {
-pandoc -t plain --citeproc --csl=jneuro.csl "${@/#/--bibliography=}" << EOF
+pandoc --to=plain --citeproc --csl=jneuro.csl "${@/#/--bibliography=}" << EOF
 ---
 nocite: |
   @*

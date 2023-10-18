@@ -1,7 +1,10 @@
 # Employment
 
-2022 -- present
-: Staff Scientist, Department of Neuroscience, Washington University in St. Louis
+2023 -- present
+: Visiting Researcher, Salk Institute for Biological Studies
+
+2023 -- present
+: Post-Doctoral Researcher, Department of Cognitive Science, Univerity of California San Diego
 
 2012 -- 2013
 : Software Engineer, The Boeing Company
