@@ -2,9 +2,9 @@
   font-size: xx-large;
 }
 
-/* body {  /1* default is gray, eww *1/ */
-/*   background-color: #ffffff; */
-/* } */
+body {  /* default bg color is gray, eww */
+  background-color: #ffffff;
+}
 
 h1 {
   margin: 0.2em;
