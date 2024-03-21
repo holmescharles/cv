@@ -1,0 +1,13 @@
+.preamble ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.preamble li {
+  display: inline;
+}
+
+.preamble li:not(:last-child)::after {
+  content: "|";
+  padding: 0 0.5em;
+}

@@ -1,14 +1,52 @@
-SHELL = /bin/bash
+SHELL = /bin/sh
 
-all: CV-Sans-Serif.pdf CV-Serif.pdf
+PANDOC = pandoc \
+	--css=style/main.css \
+	--css=style/sans-serif.css \
+	--from=markdown
+
+PANDOC_HTML = $(PANDOC) \
+	--standalone \
+	--css=style/html.css
+
+PANDOC_PDF = $(PANDOC) \
+	--pdf-engine=wkhtmltopdf \
+	--pdf-engine-opt=--enable-local-file-access \
+	--variable=margin-top:0.8in \
+	--variable=margin-right:0.8in \
+	--variable=margin-bottom:0.8in \
+	--variable=margin-left:0.8in \
+	--css=style/pdf.css
+
+PARTS = \
+	parts/title.md \
+	parts/education.md \
+	parts/employment.md \
+	parts/supplementary-education.md \
+	parts/honors.md \
+	parts/teaching.md \
+	parts/works.md \
+	parts/extracurricular.md
+
+OUTPUTS = \
+	index.html \
+	pdfs/serif.pdf \
+	pdfs/sans-serif.pdf
+
+all: $(OUTPUTS)
+.PHONY: all
+
 clean:
-	rm -rf cv.md CV-Sans-Serif.pdf CV-Serif.pdf
-push: CV-Sans-Serif.pdf CV-Serif.pdf
-	ssh snl 'mkdir -p ~/public_html'
-	scp CV-Sans-Serif.pdf CV-Serif.pdf snl:~/public_html/
-.PHONY: all clean
+	rm -rf index.html pdfs
+.PHONY: clean
 
-CV-Sans-Serif.pdf: cv.md style/pdf.css style/sans-serif.css
-	$(PANDOC) --css=style/pdf.css --css=style/sans-serif.css --output="$@" $<
-CV-Serif.pdf: cv.md style/pdf.css style/serif.css
-	$(PANDOC) --css=style/pdf.css --css=style/serif.css --output="$@" $<
+index.html: $(PARTS) parts/print-me.md
+	$(PANDOC_HTML) --output="$@" $^
+
+pdfs/serif.pdf: $(PARTS)
+	mkdir -p pdfs
+	$(PANDOC_PDF) --css=style/serif.css --output="$@" $^
+
+pdfs/sans-serif.pdf: $(PARTS)
+	mkdir -p pdfs
+	$(PANDOC_PDF) --output="$@" $^

@@ -1,14 +1,9 @@
 ---
 title: Charles Damian "Chuck" Holmes
-margin-top: 0.49in
-margin-left: 0.49in
-margin-right: 0.49in
-margin-bottom: 0.49in
 ---
 
-::: preamble
-![](icons/location.png){height=1em} San Diego, CA |
-![](icons/email.png){height=1em} holmes@ucsd.edu |
-![](icons/email.png){height=1em} holmes@salk.edu |
-![](icons/html-code.png){height=1em} chuckholm.es
+::: {.preamble}
+- ![](icons/location.png){height=1em} [San Diego, CA](https://maps.app.goo.gl/Rc9UtvVYNpA2SMMA8)
+- ![](icons/html-code.png){height=1em} [chuckholm.es](https://chuckholm.es)
+- ![](icons/email.png){height=1em} [holmes@chuckholm.es](mailto:holmes@chuckholm.es)
 :::
