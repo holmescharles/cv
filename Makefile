@@ -1,4 +1,5 @@
 SHELL = /bin/sh
+PUBLISH_DEST = shell:~/public_html/
 
 PANDOC = pandoc \
 	--css=style/main.css \
@@ -50,3 +51,8 @@ pdfs/serif.pdf: $(PARTS)
 pdfs/sans-serif.pdf: $(PARTS)
 	mkdir -p pdfs
 	$(PANDOC_PDF) --output="$@" $^
+
+publish:
+	ssh shell 'mkdir -p ~/public_html/'
+	rsync -avz --delete index.html icons pdfs style shell:~/public_html/
+.PHONY: publish
