@@ -1,13 +1,17 @@
 @import url('preamble.css');
-@import url('fonts.css');
+@import url('headings.css');
+@import url('bibliography.css');
 
-.preamble, .title, h1, h2 {
-  text-align: center;
+body {
+  font-family: 'Noto Sans', sans-serif;
 }
 
-.title, h1, h2 {
-  break-after: avoid !important;
-  margin: 2.25em 0 0.3em;
+@media not print {
+  body {
+    max-width: 40em;
+    width: 63%;
+    margin: 0 auto;
+  }
 }
 
 ul {
@@ -27,8 +31,16 @@ dd {
   margin-left: 9em;
 }
 
-.bibliography ul {
-  list-style-type: none;
-  text-indent: -2em;
-  padding-left: 2em;
+@media not print {
+  @media (max-width: 40em) {
+    dt {
+      float: none;
+      width: auto;
+    }
+
+    dd {
+      margin-left: 1em;
+      margin-bottom: 1em;
+    }
+  }
 }

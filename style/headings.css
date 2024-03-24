@@ -1,0 +1,17 @@
+.title, h1, h2 {
+  text-align: center;
+  break-after: avoid !important;
+  margin: 2.25em 0 0.3em;
+}
+
+.title {
+  font-size: xx-large;
+}
+
+h1 {
+  font-size: x-large;
+}
+
+h2 {
+  font-size: large;
+}
