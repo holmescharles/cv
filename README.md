@@ -1,3 +1,3 @@
 # Known Issues
 
-- Mac fonts seem to omit "pre-asteris" spaces on the first line of a paragraph.
+- Mac fonts seem to omit "pre-asterisk" spaces on the first line of a paragraph.
