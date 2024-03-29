@@ -3,7 +3,7 @@
 @import url('bibliography.css');
 
 body {
-  font-family: 'Noto Sans', sans-serif;
+  font-family: sans-serif;
 }
 
 @media not print {

@@ -6,6 +6,7 @@ PANDOC = pandoc \
 	--standalone \
 	--pdf-engine=wkhtmltopdf \
 	--pdf-engine-opt=--enable-local-file-access \
+	--pdf-engine-opt=--print-media-type \
 	--metadata-file=metadata.yml
 
 PARTS = \
