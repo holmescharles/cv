@@ -16,7 +16,8 @@ PARTS = \
 	parts/supplementary-education.md \
 	parts/honors.md \
 	parts/teaching.md \
-	parts/works.md \
+	parts/publications.md \
+	parts/conferences.md \
 	parts/extracurricular.md
 
 OUTPUTS = \
