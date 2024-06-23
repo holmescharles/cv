@@ -1,0 +1,33 @@
+@import url('preamble.css') (min-width: 40em);
+@import url('descriptions.css') ((min-width: 40em));
+@import url('bibliography.css') (min-width: 40em);
+
+body {
+  font-family: monospace;
+  font-size: small;
+  max-width: 40em;
+  width: 63%;
+  margin: 0 auto;
+}
+
+.preamble li {
+  list-style-type: none;
+  align: center;
+}
+
+.title, h1, h2 {
+  margin: 2em 0 0.3em;
+  text-align: center;
+}
+
+.title {
+  font-size: xx-large;
+}
+
+h1 {
+  font-size: x-large;
+}
+
+h2 {
+  font-size: large;
+}

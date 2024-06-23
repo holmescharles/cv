@@ -1,22 +1,9 @@
 .preamble {
-  text-align: left;
-}
-
-.preamble ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-@media print, screen and (min-width: 40em) {
-  .preamble {
-    text-align: center;
-  }
-
-  .preamble li {
+  li {
     display: inline;
   }
 
-  .preamble li:not(:last-child)::after {
+  li:not(:last-child)::after {
     content: "|";
     padding: 0 0.5em;
   }

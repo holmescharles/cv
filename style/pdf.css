@@ -1,0 +1,40 @@
+@import url('preamble.css');
+@import url('descriptions.css');
+@import url('bibliography.css');
+
+@page {
+    size: Letter;
+    margin: 0.8in 0.8in 0.8in 0.8in;
+}
+
+ul {
+  padding-left: 1em;
+}
+
+h1 {
+  border-bottom: 1.5px solid;
+  width: 100%;
+  display: block;
+}
+
+h2 {
+  border-bottom: 1px dotted;
+  width: 100%;
+  display: block;
+}
+
+.title {
+  font-size: 18pt;
+}
+
+h1 {
+  font-size: 13pt;
+}
+
+h2 {
+  font-size: 11pt;
+}
+
+body {
+  font-size: 9pt;
+}

@@ -1,3 +1,10 @@
-# Known Issues
+# Charles Damian "Chuck" Holmes - CV
 
-- Mac fonts seem to omit "pre-asterisk" spaces on the first line of a paragraph.
+## Building
+
+Build this cv with `make`. That will create `index.html` and `pdfs/{sans-,}serif.pdf`.
+
+## Requirements
+
+- pandoc
+- weasyprint (for pdfs)
