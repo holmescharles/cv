@@ -1,5 +1,5 @@
 .preamble {
-  text-align: center;
+  text-align: left;
 }
 
 .preamble ul {
@@ -7,7 +7,11 @@
   padding: 0;
 }
 
-@media print, screen and (min-width: 50em) {
+@media print, screen and (min-width: 40em) {
+  .preamble {
+    text-align: center;
+  }
+
   .preamble li {
     display: inline;
   }

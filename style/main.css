@@ -1,9 +1,16 @@
+@import url('dictionaries.css');
 @import url('preamble.css');
 @import url('headings.css');
 @import url('bibliography.css');
 
 body {
   font-family: sans-serif;
+  font-size: small;
+}
+
+@page {
+    size: Letter;
+    margin: 0.8in 0.8in 0.8in 0.8in;
 }
 
 @media not print {
@@ -11,36 +18,5 @@ body {
     max-width: 40em;
     width: 63%;
     margin: 0 auto;
-  }
-}
-
-ul {
-  list-style-type: square;
-}
-
-li {
-  break-inside: avoid !important;
-}
-
-dt {
-  float: left;
-  width: 8em;
-}
-
-dd {
-  margin-left: 9em;
-}
-
-@media not print {
-  @media (max-width: 40em) {
-    dt {
-      float: none;
-      width: auto;
-    }
-
-    dd {
-      margin-left: 1em;
-      margin-bottom: 1em;
-    }
   }
 }

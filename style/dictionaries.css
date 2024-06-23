@@ -1,0 +1,21 @@
+dd {
+  margin-left: 9em;
+  color: red;
+}
+
+dt {
+  float: left;
+  width: 8em;
+}
+
+@media (max-width: 40em) {
+  dd {
+    margin-left: 1em;
+    margin-bottom: 1em;
+  }
+
+  dt {
+    float: none;
+    width: auto;
+  }
+}
