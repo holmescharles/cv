@@ -1,10 +1,12 @@
 .preamble {
-  li {
-    display: inline;
-  }
+  text-align: center;
+}
 
-  li:not(:last-child)::after {
-    content: "|";
-    padding: 0 0.5em;
-  }
+.preamble li {
+  display: inline;
+}
+
+.preamble li:not(:last-child)::after {
+  content: "|";
+  padding: 0 0.5em;
 }

@@ -1,0 +1,8 @@
+name: cv
+channels:
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - python[version='>=3.9']
+  - conda-forge::weasyprint
+prefix: /home/chuck/miniconda3/envs/cv
