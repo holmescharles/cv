@@ -14,6 +14,9 @@
 2022 -- 2023
 : **Staff Scientist**, Department of Neuroscience, Washington University School of Medicine in St. Louis
 
+2013 -- 2022
+: **Graduate Research Assistant**, Department of Neuroscience, Washington University School of Medicine in St. Louis
+
 2012 -- 2013
 : **Software Engineer**, The Boeing Company
 
