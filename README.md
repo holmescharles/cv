@@ -7,4 +7,4 @@ Build this cv with `make`. That will create `index.html` and `pdfs/{sans-,}serif
 ## Requirements
 
 - pandoc
-- weasyprint (for pdfs)
+- weasyprint (for pdfs): `uv tool install weasyprint`

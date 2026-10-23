@@ -6,7 +6,7 @@
 : **Visiting Research Associate**, Department of Neuroscience, Washington University School of Medicine in St. Louis
 
 2023 -- present
-: **Post-Doctoral Researcher**, Department of Cognitive Science, Univerity of California San Diego
+: **Post-Doctoral Researcher**, Department of Cognitive Science, University of California San Diego
 
 2023 -- 2024
 : **Visiting Researcher**, Salk Institute for Biological Studies

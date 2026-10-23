@@ -59,7 +59,7 @@
   An EEG-based brain computer interface for rehabilitation and restoration of hand control following stroke using ipsilateral cortical physiology.
   In: International Conference of the IEEE Engineering in Medicine and Biology Society, Boston, MA
   
-- Fok S, Schwartz R, Wronkiewicz M, Holmes J C. D. Zhang, Brodell N, Somers T, Bundy D, Leuthardt E (2011)
+- Fok S, Schwartz R, Wronkiewicz M, **Holmes CD**, Zhang J, Brodell N, Somers T, Bundy D, Leuthardt E (2011)
   Ipsihand: An EEG based brain computer interface for motor rehabilitation.
   In: Rehabilitation Engineering and Assistive Technology Society of North America Meeting, Student Design Competition Finals, Toronto, Canada.
   
