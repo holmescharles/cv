@@ -2,6 +2,10 @@
 
 ::: {.bibliography}
 
+- Park J, **Holmes CD**, Snyder LH (2025)
+  Compositional architecture: Orthogonal neural codes for task context and spatial memory in prefrontal cortex.
+  bioRxiv. (*preprint*)
+
 - **Holmes CD**, Ching S, Snyder LH (2022)
   Primates chunk simultaneously-presented memoranda.
   Frontiers in Behavioral Neuroscience 16.

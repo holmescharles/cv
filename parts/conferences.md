@@ -2,6 +2,14 @@
 
 ::: {.bibliography}
 
+- **Holmes CD**, Hong S, Gepshtein S, Snyder LH, Mooshagian E (2026)
+  Psychophysics of hand choice in the macaque: Reaction-time asymmetry tracks a shifting point of subjective equality.
+  In: Simian Collective, Pittsburgh, PA.
+
+- **Holmes CD**, Hong S, Gepshtein S, Snyder LH, Mooshagian E (2025)
+  A non-human primate model of limb selection.
+  In: Society for the Neural Control of Movement, Panama City, Panama.
+
 - Park J, **Holmes CD**, Snyder LH (2023)
   Task-specific neural modules for spatial working memory in the frontal cortex.
   In: Society for Neuroscience, Washington, DC.
