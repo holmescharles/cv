@@ -21,8 +21,10 @@ clean:
 	rm -rf index.html pdfs
 .PHONY: clean
 
-index.html: $(html_parts)
-	pandoc --css=style/web.css --standalone --output="$@" $^
+index.html: $(html_parts) style/site.css js/timeline.js tools/site.py
+	pandoc --section-divs --css=style/site.css --standalone \
+		--metadata pagetitle="Chuck Holmes — CV" --output="$@" $(html_parts)
+	python3 tools/site.py "$@"
 
 pdfs/%.pdf: $(pdf_parts)
 	mkdir -p "$(dir $@)"
