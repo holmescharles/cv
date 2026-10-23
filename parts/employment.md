@@ -1,7 +1,5 @@
 # Employment
 
-<!-- TODO: Can I make this a graph? -->
-
 2024 -- present
 : **Visiting Research Associate**, Department of Neuroscience, Washington University School of Medicine in St. Louis
 

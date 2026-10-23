@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Turn pandoc's single-page CV into the sidebar site: site.py index.html
 
-Wraps the name and contact links into an About section, builds the sidebar
-from the section headings, adds the timeline script, and stamps the CSS and
-script links with a content hash so a rebuild is never served from cache.
+Wraps the name and contact links into an About section, folds Education
+into Employment so the two share one timeline, builds the sidebar from the
+section headings, adds the timeline script, and stamps the CSS and script
+links with a content hash so a rebuild is never served from cache.
 """
 import hashlib
 import re
@@ -16,6 +17,7 @@ JS = 'js/timeline.js'
 
 # Short nav labels for the long section titles.
 SHORT = {
+    'Education and Employment': 'Education &amp; Work',
     'Supplementary Education': 'Training',
     'Honors and Awards': 'Honors',
     'Teaching and Mentoring': 'Teaching',
@@ -61,6 +63,14 @@ def main(path):
                    r'<section id="intro">\1</section>', s, count=1, flags=re.S)
     if n != 1:
         sys.exit('site.py: name and contact block not found')
+
+    # One timeline for both: the degree list moves into the Employment
+    # section, ahead of the jobs. The PDFs keep them as two sections.
+    m = re.search(r'<section id="education" class="level1">\s*<h1>Education</h1>\s*(<dl>.*?</dl>)\s*</section>\s*', s, flags=re.S)
+    if not m or s.count('<h1>Employment</h1>') != 1:
+        sys.exit('site.py: Education or Employment section not found')
+    s = s[:m.start()] + s[m.end():]
+    s = s.replace('<h1>Employment</h1>', '<h1>Education and Employment</h1>\n' + m.group(1), 1)
 
     links = ['<li><a href="#intro">About</a></li>']
     for sid, title in re.findall(r'<section id="([^"]+)" class="level1">\s*<h1>(.*?)</h1>', s):

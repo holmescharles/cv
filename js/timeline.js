@@ -1,8 +1,10 @@
-// Turn a section's dated list (<dl>: <dt>years</dt><dd>entry</dd>) into a
+// Turn a section's dated lists (<dl>: <dt>years</dt><dd>entry</dd>) into one
 // vertical timeline plot: years to scale top to bottom, newest first, each
-// span drawn as a bar, overlapping spans in side-by-side lanes. Labels sit in
-// a column to the right, pushed apart when they would collide and tied back
-// to their bar with a connector. The <dl> stays in the page as the fallback.
+// span drawn as a bar, overlapping spans in side-by-side lanes, and a list of
+// single years (degrees) as dots in a lane of their own on the left. Labels
+// sit in a column to the right, pushed apart when they would collide and tied
+// back to their mark with a connector. The <dl>s stay in the page as the
+// fallback.
 (function () {
   var now = new Date();
   var NOW = now.getFullYear() + now.getMonth() / 12;
@@ -84,19 +86,23 @@
     return laneEnds.length;
   }
 
-  function render(dl, yearPx) {
-    var old = dl.previousElementSibling;
-    if (old && old.classList.contains('tl-wrap')) old.remove();
+  function render(sec, yearPx) {
+    var old = sec.querySelector(':scope > .tl-wrap');
+    if (old) old.remove();
 
-    var entries = parse(dl);
+    var dls = Array.prototype.slice.call(sec.querySelectorAll(':scope > dl'));
+    var entries = [].concat.apply([], dls.map(parse));
     if (!entries.length) return;
-    var lanes = entries[0].point ? 1 : assignLanes(entries);
-    entries.forEach(function (e) { if (e.point) e.lane = 0; });
+    var spans = entries.filter(function (e) { return !e.point; });
+    var hasPoints = spans.length < entries.length;
+    var lanes = assignLanes(spans) + (hasPoints ? 1 : 0);
+    entries.forEach(function (e) { e.lane = e.point ? 0 : e.lane + (hasPoints ? 1 : 0); });
 
     var narrow = window.innerWidth < 600;
     yearPx = yearPx || (narrow ? 34 : 42);
-    var top = Math.ceil(Math.max.apply(null, entries.map(function (e) { return e.end; })) + (entries[0].point ? 0.5 : 0));
-    var bottom = Math.floor(Math.min.apply(null, entries.map(function (e) { return e.start; })) - (entries[0].point ? 0.5 : 0));
+    // Half a year of room around a dot, so it never sits on the plot's edge.
+    var top = Math.ceil(Math.max.apply(null, entries.map(function (e) { return e.point ? e.start + 0.5 : e.end; })));
+    var bottom = Math.floor(Math.min.apply(null, entries.map(function (e) { return e.point ? e.start - 0.5 : e.start; })));
     var y = function (t) { return (top - t) * yearPx; };
     var plotH = (top - bottom) * yearPx;
 
@@ -109,20 +115,22 @@
 
     var wrap = document.createElement('div');
     wrap.className = 'tl-wrap';
-    dl.parentNode.insertBefore(wrap, dl);
-    dl.classList.add('tl-source');
+    sec.insertBefore(wrap, dls[0]);
+    dls.forEach(function (dl) { dl.classList.add('tl-source'); });
 
     // Legend, in plot order (newest first), when more than one employer shows.
     var seen = [];
     entries.forEach(function (e) {
       if (!seen.some(function (o) { return o.org === e.org; })) seen.push(e);
     });
-    if (seen.length > 1) {
+    // Dots mixed in with bars get their own legend entry.
+    var mixed = hasPoints && spans.length > 0;
+    if (seen.length > 1 || mixed) {
       var legend = document.createElement('ul');
       legend.className = 'tl-legend';
       legend.innerHTML = seen.map(function (e) {
         return '<li><span class="tl-swatch" style="--c:' + e.color + '"></span>' + e.org + '</li>';
-      }).join('');
+      }).join('') + (mixed ? '<li><span class="tl-ring"></span>Degree</li>' : '');
       wrap.appendChild(legend);
     }
 
@@ -173,7 +181,7 @@
     });
     // Labels taller than the plot drift below their bars; stretch the years
     // to make room, and lay out again.
-    if (maxBottom > plotH + 8 && yearPx < 90) return render(dl, Math.min(90, yearPx * maxBottom / plotH));
+    if (maxBottom > plotH + 8 && yearPx < 90) return render(sec, Math.min(90, yearPx * maxBottom / plotH));
     tl.style.height = maxBottom + 'px';
     svg.setAttribute('width', labelsX);
     svg.setAttribute('height', maxBottom);
@@ -240,8 +248,7 @@
   window.renderTimelines = function () {
     document.querySelectorAll('main > section').forEach(function (sec) {
       if (sec.offsetParent === null) return;
-      var dl = sec.querySelector(':scope > dl');
-      if (dl) render(dl);
+      if (sec.querySelector(':scope > dl')) render(sec);
     });
   };
   // Web fonts change label heights, so lay out again once they arrive.
