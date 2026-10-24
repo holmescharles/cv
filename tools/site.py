@@ -104,8 +104,12 @@ def main(path):
     s = edu[0]
     sup = take(s, 'supplementary-education', 'Supplementary Education', r'<ul>(.*?)</ul>')
     s = sup[0]
-    # Training is a bullet list ("Name, <em>years</em>"); make it a dated list.
-    training = '<dl>\n' + re.sub(r'<li>(.*?),\s*<em>([^<]*)</em></li>', r'<dt>\2</dt>\n<dd><strong>\1</strong></dd>', sup[1]).strip() + '\n</dl>'
+    # Training is a bullet list ("Name[, Institution], <em>years</em>"); make
+    # it a dated list, the name in bold as the jobs' titles are.
+    def dated(m):
+        name, _, rest = m.group(1).partition(', ')
+        return f'<dt>{m.group(2)}</dt>\n<dd><strong>{name}</strong>' + (f', {rest}' if rest else '') + '</dd>'
+    training = '<dl>\n' + re.sub(r'<li>(.*?),\s*<em>([^<]*)</em></li>', dated, sup[1]).strip() + '\n</dl>'
     jobs = re.search(r'<section id="employment" class="level1">\s*<h1>Employment</h1>\s*(<dl>.*?</dl>)', s, flags=re.S)
     if not jobs:
         sys.exit('site.py: Employment section not found')

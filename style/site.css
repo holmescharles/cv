@@ -140,9 +140,10 @@ section li { margin: 0.35rem 0; }
   position: absolute; right: calc(100% + 0.6rem); display: flex; align-items: center;
   font-size: 0.68rem; line-height: 1; color: var(--muted); white-space: nowrap;
 }
-/* The other sections' marks, in grey: spans as thin bars, dates as dots. */
+/* The other sections' marks, in grey: spans as thin bars. Single dates
+   outside the degree row, in any colour, are dots. */
 .tl-mark.other { height: calc(var(--row-h) * 0.45); margin-top: calc(var(--row-h) * 0.275); opacity: 0.7; }
-.tl-mark.other.point { width: var(--row-h); height: var(--row-h); margin-top: 0; border-radius: 50%; transform: translateX(-50%); }
+.tl-mark.dot { width: var(--row-h); height: var(--row-h); margin-top: 0; border-radius: 50%; transform: translateX(-50%); }
 .tl-hot { border-radius: 4px; transition: background 0.15s; }
 .tl-hot.on { background: color-mix(in srgb, var(--accent) 12%, transparent); }
 .tl-tick { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px solid var(--grid); }
@@ -220,7 +221,7 @@ nav.site { background: var(--bg); border-right: none; }
 /* Degrees and training, set apart from jobs: degrees are diamonds on the
    strip, and both get list items in a tinted panel with an italic,
    normal-case title. */
-.tl-mark.point:not(.other) { width: 10px; height: 10px; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
+.tl-mark.point:not(.dot) { width: 10px; height: 10px; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
 .tl-diamond { width: 9px; height: 9px; margin: 0 1px; border-radius: 1px; background: var(--c); transform: rotate(45deg); }
 .tl-item.study { border-left-color: var(--c); background: color-mix(in srgb, var(--c) 9%, transparent); }
 .tl-item.study.on { background: color-mix(in srgb, var(--c) 22%, transparent); }

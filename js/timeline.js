@@ -68,20 +68,22 @@
         cur.html.push(el.innerHTML);
       }
     });
-    // A list of single years is a list of milestones (degrees); a single year
-    // among spans is a span lasting that year.
+    // A list of single years is a list of milestones (degrees). A single
+    // year among spans is a short event (a two-week summer school): a dot at
+    // mid-year, holding its row for the year so nothing lands on top of it.
     var points = entries.every(function (e) { return e.end === null; });
     var kind = dl.dataset.kind || (points ? 'degree' : 'job');
     entries.forEach(function (e) {
       e.kind = kind;
       e.point = points;
+      var brief = e.end === null && !points;
       if (e.end === null) e.end = points ? e.start : e.start + 1;
       var who = kind === 'degree' ? [null, DEGREE[0], DEGREE[1]]
         : kind === 'training' ? [null, TRAINING[0], TRAINING[1]]
         : employer(e.html.join(' '));
       e.org = who[1];
       e.color = who[2];
-      e.marks = [{ start: e.start, end: e.end, point: e.point, ongoing: e.ongoing, at: e.start }];
+      e.marks = [{ start: e.start, end: e.end, point: e.point || brief, ongoing: e.ongoing, at: brief ? e.start + 0.5 : e.start }];
     });
     return entries;
   }
@@ -243,7 +245,7 @@
     var marks = entries.map(function (e) {
       return e.marks.map(function (s) {
         var m = document.createElement('div');
-        m.className = 'tl-mark' + (e.kind === 'other' ? ' other' : '') + (s.point ? ' point' : '') + (s.ongoing ? ' ongoing' : '');
+        m.className = 'tl-mark' + (e.kind === 'other' ? ' other' : '') + (s.point ? (e.kind === 'degree' ? ' point' : ' point dot') : '') + (s.ongoing ? ' ongoing' : '');
         m.dataset.i = e.i;
         m.style.setProperty('--c', e.color);
         m.style.top = rowTop(e.row);
