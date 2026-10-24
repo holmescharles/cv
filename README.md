@@ -4,9 +4,12 @@
 
 Build this cv with `make`. That will create `index.html` and `pdfs/{sans-,}serif.pdf`.
 
-The web page is a sidebar site: pandoc writes one page, `tools/site.py` adds the
-sidebar and the timeline script, and `js/timeline.js` draws Education and Employment
-as timelines. The PDFs still use the plain `style/pdf*.css` layout.
+The web page is one scrolling page: pandoc writes it, `tools/site.py` gathers
+Education, Supplementary Education and Employment into a Timeline section and adds
+the sidebar, which follows the scroll. `js/timeline.js` draws every dated entry on
+the page on one pinned timeline strip. The colours, light and dark (the dark set
+follows the system setting), are tokens in `style/site.css`, with how each set was
+validated. The PDFs still use the plain `style/pdf*.css` layout.
 
 **This folder is the live site.** It is served from eye-hand, so running `make` here
 publishes immediately. To preview a change, copy the tracked files somewhere else and
