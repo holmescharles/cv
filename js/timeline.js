@@ -13,25 +13,20 @@
   var NOW = now.getFullYear() + now.getMonth() / 12;
 
   // Colour follows the employer, matched on the entry text; first match wins,
-  // so the WashU catch-all goes last. Hues are Gruvbox light, assigned so every
-  // pair that touches on the strip passes the dataviz validator: worst CVD
-  // ΔE 14.5, worst normal-vision ΔE 19.2.
+  // so the WashU catch-all goes last. Each colour is a stylesheet token with
+  // a light and a dark value; site.css records how each set was validated.
   var EMPLOYERS = [
-    ['California San Diego', 'UC San Diego', '#98971a'],
-    ['Salk', 'Salk Institute', '#b16286'],
-    ['Boeing', 'Boeing', '#076678'],
-    ['Neurolutions', 'Neurolutions', '#b57614'],
-    ['Lickenbrock', 'Lickenbrock', '#d65d0e'],
-    ['Washington University', 'WashU', '#9d0006']
+    ['California San Diego', 'UC San Diego', 'var(--tl-ucsd)'],
+    ['Salk', 'Salk Institute', 'var(--tl-salk)'],
+    ['Boeing', 'Boeing', 'var(--tl-boeing)'],
+    ['Neurolutions', 'Neurolutions', 'var(--tl-neuro)'],
+    ['Lickenbrock', 'Lickenbrock', 'var(--tl-lick)'],
+    ['Washington University', 'WashU', 'var(--tl-washu)']
   ];
-  // Degrees are not employers: they get their own hue, Gruvbox aqua, which
-  // passes the same checks against WashU red, Boeing teal and Lickenbrock
-  // orange, and fails against UC San Diego olive and Neurolutions amber.
-  var DEGREE = ['Degree', '#689d6a'];
-  // Training gets Gruvbox yellow, which passes against WashU red, Boeing teal
-  // and degree aqua but fails against Lickenbrock orange and Neurolutions
-  // amber. Giving each kind its own rows keeps it away from those two.
-  var TRAINING = ['Training', '#d79921'];
+  // Degrees and training are not employers: each gets its own hue and its
+  // own rows.
+  var DEGREE = ['Degree', 'var(--tl-degree)'];
+  var TRAINING = ['Training', 'var(--tl-training)'];
   var KINDS = ['degree', 'training', 'job'];
   var LABELS = { degree: 'Degrees', training: 'Training', job: 'Jobs' };
   // The Timeline subsection each kind's band answers to.
@@ -39,7 +34,7 @@
   // The other sections share one grey (Gruvbox fg4): the row label, not a
   // hue, says which section a mark belongs to. Labels are short to fit the
   // strip's left margin; a section not listed uses its heading.
-  var OTHER = '#7c6f64';
+  var OTHER = 'var(--muted)';
   var SHORT = {
     'honors-and-awards': 'Honors',
     'teaching-and-mentoring': 'Teaching',
@@ -49,7 +44,7 @@
   };
   function employer(text) {
     for (var k = 0; k < EMPLOYERS.length; k++) if (text.indexOf(EMPLOYERS[k][0]) >= 0) return EMPLOYERS[k];
-    return [null, 'Other', '#6b6b70'];
+    return [null, 'Other', 'var(--muted)'];
   }
 
   function parse(dl) {

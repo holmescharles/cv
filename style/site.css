@@ -10,6 +10,38 @@
   --grid: #ebdbb2;       /* bg1 */
   --accent: #076678;     /* faded blue */
   --nav-width: 15rem;
+  --hover: rgba(0, 0, 0, 0.04);
+  --current: rgba(0, 0, 0, 0.06);
+  color-scheme: light dark;
+  /* Timeline colours, Gruvbox light. Every pair that touches on the strip
+     passes the dataviz validator: worst CVD ΔE 14.5, worst normal-vision
+     ΔE 19.2. Degree aqua and training yellow each get their own rows,
+     which keeps them off Lickenbrock orange and Neurolutions amber. */
+  --tl-ucsd: #98971a; --tl-salk: #b16286; --tl-boeing: #076678; --tl-neuro: #b57614;
+  --tl-lick: #d65d0e; --tl-washu: #9d0006; --tl-degree: #689d6a; --tl-training: #d79921;
+}
+/* Dark mode, when the system asks for it: Gruvbox dark. Its timeline
+   colours were chosen by search over the Gruvbox palette against the
+   #282828 surface: every touching pair of bars passes (worst CVD ΔE 8.5,
+   worst normal-vision ΔE 15.2, all at least 3:1 against the surface).
+   WashU red leaves too few neighbours for every pair to pass, so the two
+   marks drawn in a shape of their own (degree diamonds, the Neurolutions
+   dot) are exempt. UC San Diego turns blue and Lickenbrock aqua. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #ebdbb2;      /* fg1 */
+    --muted: #a89984;    /* fg4 */
+    --bg: #282828;       /* bg0 */
+    --nav-bg: #32302f;   /* bg0_s */
+    --rule: #504945;     /* bg2 */
+    --grid: #3c3836;     /* bg1 */
+    --hover: rgba(255, 255, 255, 0.05);
+    --current: rgba(255, 255, 255, 0.08);
+    --tl-ucsd: #83a598; --tl-salk: #b16286; --tl-boeing: #458588; --tl-neuro: #d79921;
+    --tl-lick: #8ec07c; --tl-washu: #fb4934; --tl-degree: #689d6a; --tl-training: #fabd2f;
+  }
+  /* The contact icons are black PNGs. */
+  #intro img { filter: invert(0.9); }
 }
 
 body {
@@ -51,8 +83,8 @@ nav.site li a {
   color: var(--muted);
   text-decoration: none;
 }
-nav.site li a:hover { color: var(--ink); background: rgba(0, 0, 0, 0.04); }
-nav.site li a[aria-current] { color: var(--ink); font-weight: 600; background: rgba(0, 0, 0, 0.06); }
+nav.site li a:hover { color: var(--ink); background: var(--hover); }
+nav.site li a[aria-current] { color: var(--ink); font-weight: 600; background: var(--current); }
 
 main {
   margin-left: var(--nav-width);
@@ -69,7 +101,7 @@ main > section, main > section h2, main > section .level2 { scroll-margin-top: c
 /* Subsection links, nested under their section in the sidebar. */
 nav.site ul.sub { margin: 0.1rem 0 0.4rem 0.9rem; padding-left: 0.6rem; border-left: 1px solid var(--rule); }
 nav.site ul.sub a { font-size: 0.88em; padding: 0.25rem 0.6rem; }
-nav.site ul.sub a.here { color: var(--accent); font-weight: 600; background: rgba(0, 0, 0, 0.04); }
+nav.site ul.sub a.here { color: var(--accent); font-weight: 600; background: var(--hover); }
 
 section > h1 { font-size: 2rem; font-weight: 650; margin: 0 0 1.5rem; }
 section > h2 { font-size: 1.1rem; color: var(--muted); margin: 2rem 0 0.75rem; }
@@ -204,6 +236,7 @@ section .tl-list li { margin: 0; }
 @font-face { font-family: '0xProto'; src: url(../fonts/0xProto-Italic.woff2) format('woff2'); font-weight: 400; font-style: italic; font-display: block; }
 
 :root { --accent: #427b58; --row-h: 6px; --row-gap: 3px; }
+@media (prefers-color-scheme: dark) { :root { --accent: #8ec07c; } }   /* Gruvbox aqua, faded and bright */
 body { font-family: '0xProto', ui-monospace, monospace; font-size: 15px; line-height: 1.55; }
 section > h1, #intro .title, nav.site .name { font-family: '0xProto', ui-monospace, monospace; }
 section > h1 { font-size: 2.4rem; font-weight: 700; }
