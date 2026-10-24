@@ -212,6 +212,7 @@ section li { margin: 0.35rem 0; }
 .tl-band .to { right: 0; transform: translateX(50%); }
 .tl-band .at { left: 50%; transform: translateX(-50%); }
 @media (prefers-reduced-motion: reduce) { .tl-mark, .tl-group, .tl-row-label { transition: none; } }
+.tl-strip.now * { transition: none !important; }
 
 .tl-list { list-style: none; padding: 0; margin: 0 0 1rem; display: grid; gap: 0.3rem; }
 section .tl-list li { margin: 0; }

@@ -291,12 +291,18 @@
 
     // Expand the bands for the section (and subsection) being read; shrink
     // the rest. On the About section, or one with no band, expand them all.
-    focus = function (sec, sub) {
+    // With `now`, skip the animation and re-measure at once, so a jump can
+    // scroll to a target that will not move.
+    focus = function (sec, sub, now) {
       var on = bands.filter(function (b) { return b.sec === sec && (!sub || !b.sub || b.sub === sub); });
       if (!on.length) on = bands;
+      if (now) strip.classList.add('now');
       bands.forEach(function (b) { b.el.classList.toggle('here', on.indexOf(b) >= 0); });
       clearTimeout(remeasure);
-      remeasure = setTimeout(pinTop, 300);
+      if (now) {
+        pinTop();
+        requestAnimationFrame(function () { strip.classList.remove('now'); });
+      } else remeasure = setTimeout(pinTop, 300);
     };
     focus(null);
 
@@ -353,6 +359,6 @@
     build();
     pinTop();
   };
-  window.focusTimeline = function (sec, sub) { focus(sec, sub); };
+  window.focusTimeline = function (sec, sub, now) { focus(sec, sub, now); };
   window.addEventListener('resize', pinTop);
 })();

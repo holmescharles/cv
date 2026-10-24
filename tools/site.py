@@ -35,8 +35,36 @@ follow();
 
 var links = Array.prototype.slice.call(document.querySelectorAll('nav.site li a'));
 var targets = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
-var current = null;
+var current = null, jumping = false, jumpEnd;
+// A sidebar link jumps straight to its target: the strip takes the target
+// section's layout first, so nothing shifts under the scroll, and the
+// sidebar waits for the scroll to finish before following it again.
+document.querySelector('nav.site').addEventListener('click', function (ev) {
+  var a = ev.target.closest('a[href^="#"]');
+  var t = a && document.getElementById(a.getAttribute('href').slice(1));
+  if (!t) return;
+  ev.preventDefault();
+  history.pushState(null, '', a.getAttribute('href'));
+  var sec = t.closest('main > section');
+  focusTimeline(sec && sec.id, sec === t ? null : t.id, true);
+  jumping = true;
+  clearTimeout(jumpEnd);
+  function done() {
+    if (!jumping) return;
+    clearTimeout(jumpEnd); jumping = false; current = null; spy();
+  }
+  // Scroll a frame later: the browser's scroll anchoring answers the
+  // strip's change of height by nudging the page, and a nudge landing
+  // after the scroll has begun cancels it.
+  requestAnimationFrame(function () {
+    t.scrollIntoView({ block: 'start' });
+    jumpEnd = setTimeout(done, 1500);
+    window.addEventListener('scrollend', done, { once: true });
+  });
+});
+
 function spy() {
+  if (jumping) return;
   // The section being read is the last one whose top has passed a line 40%%
   // of the way down the window (below the pinned strip, whose height
   // changes with the section, so the line must not follow it); at the very
@@ -55,7 +83,13 @@ function spy() {
   focusTimeline(top && top.id, sub && sub.getAttribute('href').slice(1));
   links.forEach(function (a) {
     var on = top && a.getAttribute('href') === '#' + top.id;
-    if (on) { a.setAttribute('aria-current', 'location'); a.scrollIntoView({ inline: 'center', block: 'nearest' }); }
+    if (on) {
+      a.setAttribute('aria-current', 'location');
+      // In the phone's header bar, bring the link into view by scrolling the
+      // bar alone; scrollIntoView would also stop the page's own scroll.
+      var ul = a.closest('ul');
+      ul.scrollLeft = a.offsetLeft - ul.offsetLeft - (ul.clientWidth - a.offsetWidth) / 2;
+    }
     else a.removeAttribute('aria-current');
     a.classList.toggle('here', a === sub);
   });
