@@ -22,6 +22,11 @@
     ['Lickenbrock', 'Lickenbrock', '#d65d0e'],
     ['Washington University', 'WashU', '#9d0006']
   ];
+  // Degrees are not employers: they get their own hue, Gruvbox aqua, which
+  // passes the same checks against every bar it sits beside (WashU red,
+  // Boeing teal, Lickenbrock orange). It fails against UC San Diego olive and
+  // Neurolutions amber, so keep it out of their lanes' years.
+  var DEGREE = ['Degree', '#689d6a'];
   function employer(text) {
     for (var k = 0; k < EMPLOYERS.length; k++) if (text.indexOf(EMPLOYERS[k][0]) >= 0) return EMPLOYERS[k];
     return [null, 'Other', '#6b6b70'];
@@ -51,7 +56,7 @@
     entries.forEach(function (e) {
       e.point = points;
       if (e.end === null) e.end = points ? e.start : e.start + 1;
-      var who = employer(e.html.join(' '));
+      var who = points ? [null, DEGREE[0], DEGREE[1]] : employer(e.html.join(' '));
       e.org = who[1];
       e.color = who[2];
     });
@@ -120,17 +125,17 @@
 
     // Legend, in plot order (newest first), when more than one employer shows.
     var seen = [];
-    entries.forEach(function (e) {
+    spans.forEach(function (e) {
       if (!seen.some(function (o) { return o.org === e.org; })) seen.push(e);
     });
-    // Dots mixed in with bars get their own legend entry.
+    // Degrees mixed in with jobs get their own legend entry.
     var mixed = hasPoints && spans.length > 0;
     if (seen.length > 1 || mixed) {
       var legend = document.createElement('ul');
       legend.className = 'tl-legend';
       legend.innerHTML = seen.map(function (e) {
         return '<li><span class="tl-swatch" style="--c:' + e.color + '"></span>' + e.org + '</li>';
-      }).join('') + (mixed ? '<li><span class="tl-ring"></span>Degree</li>' : '');
+      }).join('') + (mixed ? '<li><span class="tl-diamond" style="--c:' + DEGREE[1] + '"></span>' + DEGREE[0] + '</li>' : '');
       wrap.appendChild(legend);
     }
 
@@ -155,7 +160,7 @@
     // Labels first, so their heights can be measured for collision handling.
     var labels = entries.map(function (e, i) {
       var lab = document.createElement('div');
-      lab.className = 'tl-label';
+      lab.className = 'tl-label' + (e.point ? ' point' : '');
       lab.dataset.i = i;
       lab.style.setProperty('--c', e.color);
       lab.style.left = labelsX + 'px';
@@ -221,6 +226,7 @@
       var ax = e.point ? x + barW / 2 + 6 : x + barW + 2;
       var ay = e.point ? y(e.start) : Math.min(Math.max(ly, y(e.end) + 4), y(e.start) - 4);
       var path = document.createElementNS(SVG, 'path');
+      path.style.stroke = e.color;
       var mid = lanesX + lanesW + 8;
       path.setAttribute('d', 'M' + ax + ' ' + ay + ' H' + mid + ' L' + lx + ' ' + ly);
       path.dataset.i = i;
