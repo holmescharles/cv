@@ -89,8 +89,10 @@
   }
 
   // The dated entries of any other section: each list item's years, from its
-  // italic dates ("2019 – 2021", "2025") or, in a bibliography, "(2022)".
-  // An item with several dates gets a mark for each.
+  // italic dates ("2019 – 2021", "2025", "Fall 2014") or, in a bibliography,
+  // "(2022)". An item with several dates gets a mark for each; a named
+  // semester places its dot in that part of the year.
+  var SEASON = { Spring: 0.25, Summer: 0.55, Fall: 0.8 };
   function collect(sec) {
     var found = [];
     sec.querySelectorAll('li').forEach(function (li) {
@@ -100,11 +102,11 @@
         if (m) spans.push({ start: +m[1], end: +m[1], point: true });
       } else {
         li.querySelectorAll('em').forEach(function (em) {
-          var m = em.textContent.match(/^\s*(\d{4})(?:\s*[–-]+\s*(\d{4}|present))?\s*$/);
+          var m = em.textContent.match(/^\s*(?:(Spring|Summer|Fall)\s+)?(\d{4})(?:\s*[–-]+\s*(\d{4}|present))?\s*$/);
           if (!m) return;
-          spans.push(m[2]
-            ? { start: +m[1], end: m[2] === 'present' ? NOW : +m[2], ongoing: m[2] === 'present' }
-            : { start: +m[1], end: +m[1], point: true });
+          spans.push(m[3]
+            ? { start: +m[2], end: m[3] === 'present' ? NOW : +m[3], ongoing: m[3] === 'present' }
+            : { start: +m[2], end: +m[2], point: true, at: m[1] ? +m[2] + SEASON[m[1]] : undefined, season: m[1] });
         });
       }
       if (spans.length) found.push({ li: li, marks: spans });
@@ -112,7 +114,7 @@
     return found;
   }
   function said(m) {
-    return m.point ? '' + m.start : m.start + '–' + (m.ongoing ? 'present' : m.end);
+    return m.point ? (m.season ? m.season + ' ' : '') + m.start : m.start + '–' + (m.ongoing ? 'present' : m.end);
   }
 
   // Split "<strong>Title</strong>, Department, Institution" into tagged
@@ -174,7 +176,7 @@
       var label = SHORT[sec.id] || (h1 ? h1.textContent : sec.id);
       var years = {};
       found.forEach(function (f) {
-        f.marks.forEach(function (m) { if (m.point) (years[m.start] = years[m.start] || []).push(m); });
+        f.marks.forEach(function (m) { if (m.point && m.at === undefined) (years[m.start] = years[m.start] || []).push(m); });
       });
       Object.keys(years).forEach(function (y) {
         years[y].forEach(function (m, k) { m.at = +y + (k + 1) / (years[y].length + 1); });
