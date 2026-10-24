@@ -145,6 +145,23 @@
     return rowEnds.length;
   }
 
+  // Half a dot's width, in years, with room to spare at phone width, and
+  // the least gap between two marks sharing a row.
+  var DOT = 0.3, GAP = 0.1;
+  // Greedy interval stacking of marks by their drawn extent [lo, hi]: each
+  // takes the first row where it clears the last mark by GAP.
+  function stack(ms) {
+    var ends = [];
+    ms.slice().sort(function (a, b) { return a.lo - b.lo || (b.hi - b.lo) - (a.hi - a.lo); })
+      .forEach(function (m) {
+        var row = ends.findIndex(function (end) { return end + GAP <= m.lo; });
+        if (row < 0) { row = ends.length; ends.push(0); }
+        ends[row] = m.hi;
+        m.row = row;
+      });
+    return ends.length;
+  }
+
   function build() {
     var main = document.querySelector('main');
     if (!main || main.dataset.timeline) return;
@@ -166,34 +183,34 @@
       rows += n;
     });
 
-    // Then one row per other section. Points that share a year spread out
-    // across that year so each stays hoverable.
+    // Then a band per other section, with as many rows as it takes for no
+    // two marks to touch: a dot sits mid-year (or in its semester) and
+    // dots that share a year stack, as do spans that overlap.
     Array.prototype.forEach.call(main.querySelectorAll(':scope > section'), function (sec) {
       if (sec === tl || sec.id === 'intro') return;
       var found = collect(sec);
       if (!found.length) return;
       var h1 = sec.querySelector('h1');
       var label = SHORT[sec.id] || (h1 ? h1.textContent : sec.id);
-      var years = {};
-      found.forEach(function (f) {
-        f.marks.forEach(function (m) { if (m.point && m.at === undefined) (years[m.start] = years[m.start] || []).push(m); });
+      var ms = [].concat.apply([], found.map(function (f) { return f.marks; }));
+      ms.forEach(function (m) {
+        if (m.point && m.at === undefined) m.at = m.start + 0.5;
+        m.lo = m.point ? m.at - DOT : m.start;
+        m.hi = m.point ? m.at + DOT : m.end;
       });
-      Object.keys(years).forEach(function (y) {
-        years[y].forEach(function (m, k) { m.at = +y + (k + 1) / (years[y].length + 1); });
-      });
+      var n = stack(ms);
+      ms.forEach(function (m) { m.row += rows; });
       found.forEach(function (f) {
         entries.push({
           kind: 'other', row: rows, color: OTHER, org: label, item: f.li, marks: f.marks,
           date: f.marks.map(said).join(', ')
         });
       });
-      bands.push({ label: label, from: rows, n: 1 });
-      rows++;
+      bands.push({ label: label, from: rows, n: n });
+      rows += n;
     });
     if (!entries.length) return;
     entries.forEach(function (e, i) { e.i = i; });
-    var spans = entries.filter(function (e) { return e.kind !== 'other' && !e.point; });
-    var hasPoints = entries.some(function (e) { return e.kind === 'degree'; });
 
     // Years left to right; half a year of room around a diamond.
     var all = [].concat.apply([], entries.map(function (e) { return e.marks; }));
@@ -202,21 +219,10 @@
     var x = function (t) { return (t - lo) / (hi - lo) * 100 + '%'; };
     var rowTop = function (r) { return 'calc(' + r + ' * (var(--row-h) + var(--row-gap)))'; };
 
-    // The strip: legend, then the plot.
+    // The strip. No colour legend: each entry's list item carries its
+    // colour, and hovering either one names the other.
     var strip = document.createElement('div');
     strip.className = 'tl-strip';
-    var seen = [];
-    spans.forEach(function (e) { if (!seen.some(function (o) { return o.org === e.org; })) seen.push(e); });
-    // Jobs' employers first, then Training, as on the strip from the bottom up.
-    seen.sort(function (a, b) { return (a.kind === 'training') - (b.kind === 'training'); });
-    if (seen.length > 1 || hasPoints) {
-      var legend = document.createElement('ul');
-      legend.className = 'tl-legend';
-      legend.innerHTML = seen.map(function (e) {
-        return '<li><span class="tl-swatch" style="--c:' + e.color + '"></span>' + e.org + '</li>';
-      }).join('') + (hasPoints ? '<li><span class="tl-diamond" style="--c:' + DEGREE[1] + '"></span>' + DEGREE[0] + '</li>' : '');
-      strip.appendChild(legend);
-    }
     var plot = document.createElement('div');
     plot.className = 'tl-plot';
     plot.style.height = rowTop(rows);
@@ -250,7 +256,7 @@
         m.className = 'tl-mark' + (e.kind === 'other' ? ' other' : '') + (s.point ? (e.kind === 'degree' ? ' point' : ' point dot') : '') + (s.ongoing ? ' ongoing' : '');
         m.dataset.i = e.i;
         m.style.setProperty('--c', e.color);
-        m.style.top = rowTop(e.row);
+        m.style.top = rowTop(s.row === undefined ? e.row : s.row);
         m.style.left = x(s.point ? s.at : s.start);
         if (!s.point) m.style.width = 'calc(' + x(s.end) + ' - ' + x(s.start) + ' - 2px)';
         m.title = e.date;
