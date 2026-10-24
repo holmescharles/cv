@@ -1,19 +1,17 @@
-// Turn a section's dated lists (<dl>: <dt>years</dt><dd>entry</dd>) into one
-// vertical timeline plot: years to scale top to bottom, newest first, each
-// span drawn as a bar, overlapping spans in side-by-side lanes, and a list of
-// single years (degrees) as dots in a lane of their own on the left. Labels
-// sit in a column to the right, pushed apart when they would collide and tied
-// back to their mark with a connector. The <dl>s stay in the page as the
-// fallback.
+// Turn a section's dated lists (<dl>: <dt>years</dt><dd>entry</dd>) into
+// readable lists under one horizontal timeline strip. The strip draws every
+// job as a bar (overlapping jobs in separate rows) and every degree as a
+// diamond, years to scale left to right. Hovering, focusing or tapping an
+// entry, in a list or on the strip, highlights it in both places and marks
+// its date range on the strip. The <dl>s stay in the page as the fallback.
 (function () {
   var now = new Date();
   var NOW = now.getFullYear() + now.getMonth() / 12;
-  var SVG = 'http://www.w3.org/2000/svg';
 
   // Colour follows the employer, matched on the entry text; first match wins,
   // so the WashU catch-all goes last. Hues are Gruvbox light, assigned so every
-  // pair that touches in the plot (side by side or end to end) passes the
-  // dataviz validator: worst CVD ΔE 14.5, worst normal-vision ΔE 19.2.
+  // pair that touches on the strip passes the dataviz validator: worst CVD
+  // ΔE 14.5, worst normal-vision ΔE 19.2.
   var EMPLOYERS = [
     ['California San Diego', 'UC San Diego', '#98971a'],
     ['Salk', 'Salk Institute', '#b16286'],
@@ -23,9 +21,8 @@
     ['Washington University', 'WashU', '#9d0006']
   ];
   // Degrees are not employers: they get their own hue, Gruvbox aqua, which
-  // passes the same checks against every bar it sits beside (WashU red,
-  // Boeing teal, Lickenbrock orange). It fails against UC San Diego olive and
-  // Neurolutions amber, so keep it out of their lanes' years.
+  // passes the same checks against WashU red, Boeing teal and Lickenbrock
+  // orange, and fails against UC San Diego olive and Neurolutions amber.
   var DEGREE = ['Degree', '#689d6a'];
   function employer(text) {
     for (var k = 0; k < EMPLOYERS.length; k++) if (text.indexOf(EMPLOYERS[k][0]) >= 0) return EMPLOYERS[k];
@@ -64,8 +61,8 @@
   }
 
   // Split "<strong>Title</strong>, Department, Institution" into tagged
-  // parts so the stylesheet can run them inline or stack and size each one.
-  // The last comma part is the institution; any before it, the department.
+  // parts so the stylesheet can stack, order and size each one. The last
+  // comma part is the institution; any before it, the department.
   function parts(h) {
     var m = h.match(/^\s*<strong>(.*?)<\/strong>\s*,?\s*([\s\S]*)$/);
     if (!m) return h;
@@ -77,58 +74,43 @@
     return out;
   }
 
-  // Greedy interval colouring: each entry takes the first lane that is free.
-  function assignLanes(entries) {
-    var laneEnds = [];
+  // Greedy interval colouring: each entry takes the first row that is free.
+  function assignRows(entries) {
+    var rowEnds = [];
     entries.slice()
       .sort(function (a, b) { return a.start - b.start || (b.end - b.start) - (a.end - a.start); })
       .forEach(function (e) {
-        var lane = laneEnds.findIndex(function (end) { return end <= e.start; });
-        if (lane < 0) { lane = laneEnds.length; laneEnds.push(0); }
-        laneEnds[lane] = e.end;
-        e.lane = lane;
+        var row = rowEnds.findIndex(function (end) { return end <= e.start; });
+        if (row < 0) { row = rowEnds.length; rowEnds.push(0); }
+        rowEnds[row] = e.end;
+        e.row = row;
       });
-    return laneEnds.length;
+    return rowEnds.length;
   }
 
-  function render(sec, yearPx) {
-    var old = sec.querySelector(':scope > .tl-wrap');
-    if (old) old.remove();
-
+  function build(sec) {
+    if (sec.dataset.timeline) return;
+    sec.dataset.timeline = 'built';
     var dls = Array.prototype.slice.call(sec.querySelectorAll(':scope > dl'));
-    var entries = [].concat.apply([], dls.map(parse));
+    var lists = dls.map(parse);
+    var entries = [].concat.apply([], lists);
     if (!entries.length) return;
+
     var spans = entries.filter(function (e) { return !e.point; });
     var hasPoints = spans.length < entries.length;
-    var lanes = assignLanes(spans) + (hasPoints ? 1 : 0);
-    entries.forEach(function (e) { e.lane = e.point ? 0 : e.lane + (hasPoints ? 1 : 0); });
+    var rows = assignRows(spans) + (hasPoints ? 1 : 0);
+    entries.forEach(function (e, i) { e.i = i; e.row = e.point ? 0 : e.row + (hasPoints ? 1 : 0); });
 
-    var narrow = window.innerWidth < 600;
-    yearPx = yearPx || (narrow ? 34 : 42);
-    // Half a year of room around a dot, so it never sits on the plot's edge.
-    var top = Math.ceil(Math.max.apply(null, entries.map(function (e) { return e.point ? e.start + 0.5 : e.end; })));
-    var bottom = Math.floor(Math.min.apply(null, entries.map(function (e) { return e.point ? e.start - 0.5 : e.start; })));
-    var y = function (t) { return (top - t) * yearPx; };
-    var plotH = (top - bottom) * yearPx;
+    // Years left to right; half a year of room around a diamond.
+    var lo = Math.floor(Math.min.apply(null, entries.map(function (e) { return e.point ? e.start - 0.5 : e.start; })));
+    var hi = Math.ceil(Math.max.apply(null, entries.map(function (e) { return e.point ? e.start + 0.5 : e.end; })));
+    var x = function (t) { return (t - lo) / (hi - lo) * 100 + '%'; };
 
-    var barW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar-w')) || 10;
-    var axisW = 40, laneGap = 6;
-    var entryGap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--entry-gap')) || (narrow ? 12 : 14);
-    var lanesX = axisW + 10;
-    var lanesW = lanes * barW + (lanes - 1) * laneGap;
-    var labelsX = lanesX + lanesW + (narrow ? 20 : 36);
-
-    var wrap = document.createElement('div');
-    wrap.className = 'tl-wrap';
-    sec.insertBefore(wrap, dls[0]);
-    dls.forEach(function (dl) { dl.classList.add('tl-source'); });
-
-    // Legend, in plot order (newest first), when more than one employer shows.
+    // The strip: legend, then the plot.
+    var strip = document.createElement('div');
+    strip.className = 'tl-strip';
     var seen = [];
-    spans.forEach(function (e) {
-      if (!seen.some(function (o) { return o.org === e.org; })) seen.push(e);
-    });
-    // Degrees mixed in with jobs get their own legend entry.
+    spans.forEach(function (e) { if (!seen.some(function (o) { return o.org === e.org; })) seen.push(e); });
     var mixed = hasPoints && spans.length > 0;
     if (seen.length > 1 || mixed) {
       var legend = document.createElement('ul');
@@ -136,129 +118,107 @@
       legend.innerHTML = seen.map(function (e) {
         return '<li><span class="tl-swatch" style="--c:' + e.color + '"></span>' + e.org + '</li>';
       }).join('') + (mixed ? '<li><span class="tl-diamond" style="--c:' + DEGREE[1] + '"></span>' + DEGREE[0] + '</li>' : '');
-      wrap.appendChild(legend);
+      strip.appendChild(legend);
     }
+    var plot = document.createElement('div');
+    plot.className = 'tl-plot';
+    plot.style.height = 'calc(' + rows + ' * (var(--row-h) + 5px))';
+    strip.appendChild(plot);
 
-    var tl = document.createElement('div');
-    tl.className = 'tl';
-    wrap.appendChild(tl);
-
-    var svg = document.createElementNS(SVG, 'svg');
-    svg.setAttribute('class', 'tl-links');
-    tl.appendChild(svg);
-
-    // Axis: a tick each year, a label every other year, faint grid lines.
-    for (var yr = bottom; yr <= top; yr++) {
+    // A tick each year; labels every other year, every fourth on a phone.
+    for (var yr = lo; yr <= hi; yr++) {
       var tick = document.createElement('div');
-      tick.className = 'tl-tick' + (yr % 2 === 0 ? ' major' : '');
-      tick.style.top = y(yr) + 'px';
-      tick.style.width = (lanesX + lanesW + 6) + 'px';
-      if (yr % 2 === 0) tick.innerHTML = '<span>' + yr + '</span>';
-      tl.appendChild(tick);
+      tick.className = 'tl-tick' + (yr % 2 === 0 ? ' label' : '') + (yr % 4 === 0 ? ' label4' : '');
+      tick.style.left = x(yr);
+      tick.innerHTML = '<span>' + yr + '</span>';
+      plot.appendChild(tick);
     }
+    var band = document.createElement('div');
+    band.className = 'tl-band';
+    plot.appendChild(band);
 
-    // Labels first, so their heights can be measured for collision handling.
-    var labels = entries.map(function (e, i) {
-      var lab = document.createElement('div');
-      lab.className = 'tl-label' + (e.point ? ' point' : '');
-      lab.dataset.i = i;
-      lab.style.setProperty('--c', e.color);
-      lab.style.left = labelsX + 'px';
-      lab.innerHTML = '<div class="tl-date">' + e.date + '</div>' +
-        e.html.map(function (h, k) { return k ? '<div class="tl-note">' + h + '</div>' : '<div class="tl-what">' + parts(h) + '</div>'; }).join('');
-      tl.appendChild(lab);
-      return lab;
+    var marks = entries.map(function (e) {
+      var m = document.createElement('div');
+      m.className = 'tl-mark' + (e.point ? ' point' : '') + (e.ongoing ? ' ongoing' : '');
+      m.dataset.i = e.i;
+      m.style.setProperty('--c', e.color);
+      m.style.top = 'calc(' + e.row + ' * (var(--row-h) + 5px))';
+      m.style.left = x(e.start);
+      if (!e.point) m.style.width = 'calc(' + x(e.end) + ' - ' + x(e.start) + ' - 2px)';
+      m.title = e.date;
+      plot.appendChild(m);
+      return m;
+    });
+    sec.insertBefore(strip, sec.querySelector(':scope > h2') || dls[0]);
+
+    // The lists, one per <dl>, each in its own order.
+    var items = [];
+    dls.forEach(function (dl, k) {
+      var ul = document.createElement('ul');
+      ul.className = 'tl-list';
+      lists[k].forEach(function (e) {
+        var li = document.createElement('li');
+        li.className = 'tl-item' + (e.point ? ' point' : '');
+        li.dataset.i = e.i;
+        li.tabIndex = 0;
+        li.style.setProperty('--c', e.color);
+        li.innerHTML = '<div class="tl-date">' + e.date + '</div>' +
+          e.html.map(function (h, j) { return j ? '<div class="tl-note">' + h + '</div>' : '<div class="tl-what">' + parts(h) + '</div>'; }).join('');
+        ul.appendChild(li);
+        items[e.i] = li;
+      });
+      dl.parentNode.insertBefore(ul, dl);
+      dl.classList.add('tl-source');
     });
 
-    // Place labels newest first at their entry's top, pushing each one down
-    // until it clears the label above it.
-    var order = entries.map(function (e, i) { return i; })
-      .sort(function (a, b) { return y(entries[a].end) - y(entries[b].end); });
-    var floor = -Infinity, maxBottom = plotH;
-    order.forEach(function (i) {
+    var active = null;
+    function show(i) {
+      if (i === active) return;
+      if (active !== null) { marks[active].classList.remove('on'); items[active].classList.remove('on'); }
+      active = i;
+      strip.classList.toggle('active', i !== null);
+      if (i === null) return;
       var e = entries[i];
-      var want = e.point ? y(e.start) - 9 : y(e.end) - 2;
-      var at = Math.max(want, floor);
-      labels[i].style.top = at + 'px';
-      e.labelY = at;
-      floor = at + labels[i].offsetHeight + entryGap;
-      maxBottom = Math.max(maxBottom, at + labels[i].offsetHeight);
-    });
-    // Labels taller than the plot drift below their bars; stretch the years
-    // to make room, and lay out again.
-    if (maxBottom > plotH + 8 && yearPx < 90) return render(sec, Math.min(90, yearPx * maxBottom / plotH));
-    tl.style.height = maxBottom + 'px';
-    svg.setAttribute('width', labelsX);
-    svg.setAttribute('height', maxBottom);
-
-    entries.forEach(function (e, i) {
-      var x = lanesX + e.lane * (barW + laneGap);
-      var mark = document.createElement('div');
-      mark.dataset.i = i;
-      mark.style.setProperty('--c', e.color);
-      if (e.point) {
-        mark.className = 'tl-dot';
-        mark.style.top = y(e.start) + 'px';
-        mark.style.left = (x + barW / 2) + 'px';
-      } else {
-        mark.className = 'tl-bar' + (e.ongoing ? ' ongoing' : '');
-        mark.style.top = y(e.end) + 'px';
-        mark.style.height = Math.max(4, y(e.start) - y(e.end)) + 'px';
-        mark.style.left = x + 'px';
-        mark.style.width = barW + 'px';
-        // Year tags over the axis at the bar's ends, shown while the entry
-        // is highlighted. An ongoing span has no end to tag.
-        [[e.start, 'start']].concat(e.ongoing ? [] : [[e.end, 'end']]).forEach(function (p) {
-          var tag = document.createElement('div');
-          tag.className = 'tl-end ' + p[1];
-          tag.dataset.i = i;
-          tag.style.top = y(p[0]) + 'px';
-          tag.style.width = (axisW - 2) + 'px';
-          tag.textContent = p[0];
-          tl.appendChild(tag);
-        });
-      }
-      tl.appendChild(mark);
-
-      // Connector to the label's first line, leaving the bar at the point
-      // level with the label when the bar reaches that far, so most run flat.
-      var lx = labelsX - 6, ly = e.labelY + 9;
-      var ax = e.point ? x + barW / 2 + 6 : x + barW + 2;
-      var ay = e.point ? y(e.start) : Math.min(Math.max(ly, y(e.end) + 4), y(e.start) - 4);
-      var path = document.createElementNS(SVG, 'path');
-      path.style.stroke = e.color;
-      var mid = lanesX + lanesW + 8;
-      path.setAttribute('d', 'M' + ax + ' ' + ay + ' H' + mid + ' L' + lx + ' ' + ly);
-      path.dataset.i = i;
-      svg.appendChild(path);
-    });
-
-    // Hovering or tapping any part of an entry highlights all of it.
-    function hot(i, on) {
-      tl.querySelectorAll('[data-i="' + i + '"]').forEach(function (n) { n.classList.toggle('hot', on); });
+      marks[i].classList.add('on');
+      items[i].classList.add('on');
+      band.style.setProperty('--c', e.color);
+      band.style.left = x(e.start);
+      band.style.width = e.point ? '0px' : 'calc(' + x(e.end) + ' - ' + x(e.start) + ')';
+      var to = e.ongoing ? 'present' : e.end;
+      band.innerHTML = e.point || e.end - e.start <= 1
+        ? '<span class="at">' + e.date + '</span>'
+        : '<span class="from">' + e.start + '</span><span class="to">' + to + '</span>';
     }
-    tl.addEventListener('mouseover', function (ev) {
-      var n = ev.target.closest('[data-i]'); if (n) hot(n.dataset.i, true);
+    function pick(ev) { var n = ev.target.closest('[data-i]'); return n ? +n.dataset.i : null; }
+    [plot].concat(items).forEach(function (el) {
+      el.addEventListener('mouseover', function (ev) { var i = pick(ev); if (i !== null) show(i); });
+      el.addEventListener('mouseleave', function () { show(null); });
     });
-    tl.addEventListener('mouseout', function (ev) {
-      var n = ev.target.closest('[data-i]'); if (n) hot(n.dataset.i, false);
+    items.forEach(function (li) {
+      li.addEventListener('focus', function () { show(+li.dataset.i); });
+      li.addEventListener('blur', function () { show(null); });
     });
-    tl.addEventListener('click', function (ev) {
-      var n = ev.target.closest('[data-i]');
-      tl.querySelectorAll('.hot').forEach(function (h) { h.classList.remove('hot'); });
-      if (n) hot(n.dataset.i, true);
+    // Taps: highlight an entry and keep it until the next tap; a tap on a
+    // strip mark also brings its entry into view.
+    sec.addEventListener('click', function (ev) {
+      var i = pick(ev);
+      show(i);
+      if (i !== null && ev.target.closest('.tl-mark')) items[i].scrollIntoView({ block: 'center', behavior: 'smooth' });
     });
   }
 
-  // Render the timelines in visible sections; hidden ones can't be measured.
+  // Pin the strip below the phone's header bar, whose height varies.
+  function pinTop() {
+    var nav = document.querySelector('nav.site');
+    var top = nav && getComputedStyle(nav).position === 'sticky' ? nav.offsetHeight : 0;
+    document.documentElement.style.setProperty('--strip-top', top + 'px');
+  }
+
   window.renderTimelines = function () {
     document.querySelectorAll('main > section').forEach(function (sec) {
-      if (sec.offsetParent === null) return;
-      if (sec.querySelector(':scope > dl')) render(sec);
+      if (sec.querySelector(':scope > dl')) build(sec);
     });
+    pinTop();
   };
-  // Web fonts change label heights, so lay out again once they arrive.
-  if (document.fonts) document.fonts.ready.then(function () { window.renderTimelines(); });
-  var t;
-  window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(window.renderTimelines, 150); });
+  window.addEventListener('resize', pinTop);
 })();

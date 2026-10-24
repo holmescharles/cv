@@ -64,13 +64,15 @@ def main(path):
     if n != 1:
         sys.exit('site.py: name and contact block not found')
 
-    # One timeline for both: the degree list moves into the Employment
-    # section, ahead of the jobs. The PDFs keep them as two sections.
+    # One timeline strip for both: the degree list moves into the Employment
+    # section, each list under its own subheading. The PDFs keep them as two
+    # sections.
     m = re.search(r'<section id="education" class="level1">\s*<h1>Education</h1>\s*(<dl>.*?</dl>)\s*</section>\s*', s, flags=re.S)
     if not m or s.count('<h1>Employment</h1>') != 1:
         sys.exit('site.py: Education or Employment section not found')
     s = s[:m.start()] + s[m.end():]
-    s = s.replace('<h1>Employment</h1>', '<h1>Education and Employment</h1>\n' + m.group(1), 1)
+    s = s.replace('<h1>Employment</h1>', '<h1>Education and Employment</h1>\n<h2>Education</h2>\n'
+                  + m.group(1) + '\n<h2>Employment</h2>', 1)
 
     links = ['<li><a href="#intro">About</a></li>']
     for sid, title in re.findall(r'<section id="([^"]+)" class="level1">\s*<h1>(.*?)</h1>', s):
