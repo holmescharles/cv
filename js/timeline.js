@@ -1,7 +1,9 @@
 // Turn a section's dated lists (<dl>: <dt>years</dt><dd>entry</dd>) into
-// readable lists under one horizontal timeline strip. The strip draws every
-// job as a bar (overlapping jobs in separate rows) and every degree as a
-// diamond, years to scale left to right. Hovering, focusing or tapping an
+// readable lists under one horizontal timeline strip. The strip draws, years
+// to scale left to right, each degree as a diamond on the top row, training
+// as bars on the rows below, and jobs as bars on the rows below those,
+// overlapping spans of one kind in separate rows. A list's kind comes from
+// its data-kind attribute (degree, training, job), else from its dates. Hovering, focusing or tapping an
 // entry, in a list or on the strip, highlights it in both places and marks
 // its date range on the strip. The <dl>s stay in the page as the fallback.
 (function () {
@@ -24,6 +26,11 @@
   // passes the same checks against WashU red, Boeing teal and Lickenbrock
   // orange, and fails against UC San Diego olive and Neurolutions amber.
   var DEGREE = ['Degree', '#689d6a'];
+  // Training gets Gruvbox yellow, which passes against WashU red, Boeing teal
+  // and degree aqua but fails against Lickenbrock orange and Neurolutions
+  // amber. Giving each kind its own rows keeps it away from those two.
+  var TRAINING = ['Training', '#d79921'];
+  var KINDS = ['degree', 'training', 'job'];
   function employer(text) {
     for (var k = 0; k < EMPLOYERS.length; k++) if (text.indexOf(EMPLOYERS[k][0]) >= 0) return EMPLOYERS[k];
     return [null, 'Other', '#6b6b70'];
@@ -50,10 +57,14 @@
     // A list of single years is a list of milestones (degrees); a single year
     // among spans is a span lasting that year.
     var points = entries.every(function (e) { return e.end === null; });
+    var kind = dl.dataset.kind || (points ? 'degree' : 'job');
     entries.forEach(function (e) {
+      e.kind = kind;
       e.point = points;
       if (e.end === null) e.end = points ? e.start : e.start + 1;
-      var who = points ? [null, DEGREE[0], DEGREE[1]] : employer(e.html.join(' '));
+      var who = kind === 'degree' ? [null, DEGREE[0], DEGREE[1]]
+        : kind === 'training' ? [null, TRAINING[0], TRAINING[1]]
+        : employer(e.html.join(' '));
       e.org = who[1];
       e.color = who[2];
     });
@@ -96,10 +107,19 @@
     var entries = [].concat.apply([], lists);
     if (!entries.length) return;
 
+    // Each kind gets its own band of rows, in KINDS order; diamonds share one.
+    var rows = 0;
+    KINDS.forEach(function (k) {
+      var group = entries.filter(function (e) { return e.kind === k; });
+      if (!group.length) return;
+      var dots = group.every(function (e) { return e.point; });
+      var n = dots ? 1 : assignRows(group);
+      group.forEach(function (e) { e.row = (dots ? 0 : e.row) + rows; });
+      rows += n;
+    });
+    entries.forEach(function (e, i) { e.i = i; });
     var spans = entries.filter(function (e) { return !e.point; });
     var hasPoints = spans.length < entries.length;
-    var rows = assignRows(spans) + (hasPoints ? 1 : 0);
-    entries.forEach(function (e, i) { e.i = i; e.row = e.point ? 0 : e.row + (hasPoints ? 1 : 0); });
 
     // Years left to right; half a year of room around a diamond.
     var lo = Math.floor(Math.min.apply(null, entries.map(function (e) { return e.point ? e.start - 0.5 : e.start; })));
@@ -111,6 +131,8 @@
     strip.className = 'tl-strip';
     var seen = [];
     spans.forEach(function (e) { if (!seen.some(function (o) { return o.org === e.org; })) seen.push(e); });
+    // Jobs' employers first, then Training, as on the strip from the bottom up.
+    seen.sort(function (a, b) { return (a.kind === 'training') - (b.kind === 'training'); });
     var mixed = hasPoints && spans.length > 0;
     if (seen.length > 1 || mixed) {
       var legend = document.createElement('ul');
@@ -158,7 +180,7 @@
       ul.className = 'tl-list';
       lists[k].forEach(function (e) {
         var li = document.createElement('li');
-        li.className = 'tl-item' + (e.point ? ' point' : '');
+        li.className = 'tl-item' + (e.kind === 'job' ? '' : ' study');
         li.dataset.i = e.i;
         li.tabIndex = 0;
         li.style.setProperty('--c', e.color);
@@ -207,11 +229,14 @@
     });
   }
 
-  // Pin the strip below the phone's header bar, whose height varies.
+  // Pin the strip below the phone's header bar, whose height varies, and
+  // record the visible strip's height so jumps to a list land below it.
   function pinTop() {
     var nav = document.querySelector('nav.site');
     var top = nav && getComputedStyle(nav).position === 'sticky' ? nav.offsetHeight : 0;
     document.documentElement.style.setProperty('--strip-top', top + 'px');
+    var strip = Array.prototype.find.call(document.querySelectorAll('.tl-strip'), function (s) { return s.offsetParent !== null; });
+    if (strip) document.documentElement.style.setProperty('--strip-h', strip.offsetHeight + 'px');
   }
 
   window.renderTimelines = function () {

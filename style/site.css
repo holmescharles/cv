@@ -62,7 +62,16 @@ main {
 }
 main > section { display: none; }
 main > section:target,
-main:not(:has(section:target)) > #intro { display: block; }
+main > section:has(:target),
+main:not(:has(:target)) > #intro { display: block; }
+/* A jump to a subsection lands below the pinned header bar and timeline strip. */
+main > section h2, main > section .level2 { scroll-margin-top: calc(var(--strip-top, 0px) + 0.75rem); }
+main > section[data-timeline] > h2 { scroll-margin-top: calc(var(--strip-top, 0px) + var(--strip-h, 0px) + 0.75rem); }
+
+/* Subsection links, nested under their section in the sidebar. */
+nav.site ul.sub { margin: 0.1rem 0 0.4rem 0.9rem; padding-left: 0.6rem; border-left: 1px solid var(--rule); }
+nav.site ul.sub a { font-size: 0.88em; padding: 0.25rem 0.6rem; }
+nav.site ul.sub a.here { color: var(--accent); font-weight: 600; background: rgba(0, 0, 0, 0.04); }
 
 section > h1 { font-size: 2rem; font-weight: 650; margin: 0 0 1.5rem; }
 section > h2 { font-size: 1.1rem; color: var(--muted); margin: 2rem 0 0.75rem; }
@@ -107,6 +116,8 @@ section li { margin: 0.35rem 0; }
     padding: 0 1rem 0.6rem;
   }
   nav.site li a { white-space: nowrap; margin: 0; padding: 0.5rem 0.75rem; }
+  /* The header bar has room for one row: sections only. */
+  nav.site ul.sub { display: none; }
   main { margin-left: 0; padding: 1.5rem 1rem 3rem; }
   body { font-size: 16px; }
   section > h1 { font-size: 1.6rem; }
@@ -197,11 +208,12 @@ nav.site { background: var(--bg); border-right: none; }
 .tl-org { font-size: 0.9em; font-weight: 400; color: var(--ink); }
 .tl-date { font-size: 0.85rem; font-weight: 700; }
 
-/* Degrees, set apart from jobs: aqua diamonds on the strip, and list items
-   in a tinted panel with an italic, normal-case title. */
+/* Degrees and training, set apart from jobs: degrees are diamonds on the
+   strip, and both get list items in a tinted panel with an italic,
+   normal-case title. */
 .tl-mark.point { width: 10px; height: 10px; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
 .tl-diamond { width: 9px; height: 9px; margin: 0 1px; border-radius: 1px; background: var(--c); transform: rotate(45deg); }
-.tl-item.point { border-left-color: var(--c); background: color-mix(in srgb, var(--c) 9%, transparent); }
-.tl-item.point.on { background: color-mix(in srgb, var(--c) 22%, transparent); }
-.tl-item.point .tl-title { text-transform: none; font-style: italic; letter-spacing: 0; }
-.tl-item.point .tl-note { font-size: 0.85em; }
+.tl-item.study { border-left-color: var(--c); background: color-mix(in srgb, var(--c) 9%, transparent); }
+.tl-item.study.on { background: color-mix(in srgb, var(--c) 22%, transparent); }
+.tl-item.study .tl-title { text-transform: none; font-style: italic; letter-spacing: 0; }
+.tl-item.study .tl-note { font-size: 0.85em; }
