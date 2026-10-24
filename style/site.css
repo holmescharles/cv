@@ -1,5 +1,5 @@
-/* Nav layout: a sidebar of section links (a header bar on phones); one
-   section shows at a time. Colours are Gruvbox light; the house style at the end overrides type and spacing. */
+/* Nav layout: one page, with a sidebar of section links (a header bar on
+   phones) that marks the section being read. Colours are Gruvbox light; the house style at the end overrides type and spacing. */
 
 :root {
   --ink: #3c3836;        /* fg1 */
@@ -52,21 +52,19 @@ nav.site li a {
   text-decoration: none;
 }
 nav.site li a:hover { color: var(--ink); background: rgba(0, 0, 0, 0.04); }
-nav.site li a[aria-current="page"] { color: var(--ink); font-weight: 600; background: rgba(0, 0, 0, 0.06); }
+nav.site li a[aria-current] { color: var(--ink); font-weight: 600; background: rgba(0, 0, 0, 0.06); }
 
-/* Content: only the selected section shows. */
 main {
   margin-left: var(--nav-width);
   padding: 3rem 2rem 4rem;
   max-width: 44rem;
 }
-main > section { display: none; }
-main > section:target,
-main > section:has(:target),
-main:not(:has(:target)) > #intro { display: block; }
-/* A jump to a subsection lands below the pinned header bar and timeline strip. */
-main > section h2, main > section .level2 { scroll-margin-top: calc(var(--strip-top, 0px) + 0.75rem); }
-main > section[data-timeline] > h2 { scroll-margin-top: calc(var(--strip-top, 0px) + var(--strip-h, 0px) + 0.75rem); }
+/* The whole CV is one page; the sidebar is its table of contents. */
+main > section + section { margin-top: 4.5rem; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+/* A jump lands below the pinned header bar and timeline strip. */
+main > section, main > section h2, main > section .level2 { scroll-margin-top: calc(var(--strip-top, 0px) + var(--strip-h, 0px) + 0.75rem); }
+.tl-strip + section { margin-top: 1.5rem; }
 
 /* Subsection links, nested under their section in the sidebar. */
 nav.site ul.sub { margin: 0.1rem 0 0.4rem 0.9rem; padding-left: 0.6rem; border-left: 1px solid var(--rule); }
@@ -127,15 +125,26 @@ section li { margin: 0.35rem 0; }
   dt + dd { margin-top: 0; }
 }
 
-/* Timeline strip and entry lists, built by timeline.js from a section's
-   dated lists (kept in the page, hidden, as the no-script fallback). The
-   strip stays pinned while the lists scroll beneath it. */
+/* Timeline strip and entry lists, built by timeline.js from every dated
+   entry on the page (the Timeline's dated lists stay in the page, hidden,
+   as the no-script fallback). The strip stays pinned while the page
+   scrolls beneath it. */
 .tl-source { display: none; }
 .tl-strip {
   position: sticky; top: var(--strip-top, 0px); z-index: 1; background: var(--bg);
   padding: 0.6rem 0 0.4rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--rule);
 }
-.tl-plot { position: relative; margin: 0 0.75rem 1.6rem; }
+.tl-plot { position: relative; margin: 0 0.75rem 1.6rem 5.5rem; }
+/* Each band of rows is named in the plot's left margin. */
+.tl-row-label {
+  position: absolute; right: calc(100% + 0.6rem); display: flex; align-items: center;
+  font-size: 0.68rem; line-height: 1; color: var(--muted); white-space: nowrap;
+}
+/* The other sections' marks, in grey: spans as thin bars, dates as dots. */
+.tl-mark.other { height: calc(var(--row-h) * 0.45); margin-top: calc(var(--row-h) * 0.275); opacity: 0.7; }
+.tl-mark.other.point { width: var(--row-h); height: var(--row-h); margin-top: 0; border-radius: 50%; transform: translateX(-50%); }
+.tl-hot { border-radius: 4px; transition: background 0.15s; }
+.tl-hot.on { background: color-mix(in srgb, var(--accent) 12%, transparent); }
 .tl-tick { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px solid var(--grid); }
 .tl-tick span {
   position: absolute; bottom: -1.35rem; transform: translateX(-50%);
@@ -189,13 +198,13 @@ section .tl-list li { margin: 0; }
 @font-face { font-family: '0xProto'; src: url(../fonts/0xProto-Bold.woff2) format('woff2'); font-weight: 700; font-display: block; }
 @font-face { font-family: '0xProto'; src: url(../fonts/0xProto-Italic.woff2) format('woff2'); font-weight: 400; font-style: italic; font-display: block; }
 
-:root { --accent: #427b58; --row-h: 9px; }
+:root { --accent: #427b58; --row-h: 9px; --row-gap: 5px; }
 body { font-family: '0xProto', ui-monospace, monospace; font-size: 15px; line-height: 1.55; }
 section > h1, #intro .title, nav.site .name { font-family: '0xProto', ui-monospace, monospace; }
 section > h1 { font-size: 2.4rem; font-weight: 700; }
 main { max-width: 46rem; }
 a { color: var(--accent); }
-nav.site li a[aria-current="page"] { color: var(--accent); }
+nav.site li a[aria-current] { color: var(--accent); }
 
 section > h1 { border-bottom: 3px solid var(--accent); padding-bottom: 0.3rem; display: inline-block; }
 .tl-date, dt { color: var(--accent); }
@@ -211,9 +220,18 @@ nav.site { background: var(--bg); border-right: none; }
 /* Degrees and training, set apart from jobs: degrees are diamonds on the
    strip, and both get list items in a tinted panel with an italic,
    normal-case title. */
-.tl-mark.point { width: 10px; height: 10px; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
+.tl-mark.point:not(.other) { width: 10px; height: 10px; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
 .tl-diamond { width: 9px; height: 9px; margin: 0 1px; border-radius: 1px; background: var(--c); transform: rotate(45deg); }
 .tl-item.study { border-left-color: var(--c); background: color-mix(in srgb, var(--c) 9%, transparent); }
 .tl-item.study.on { background: color-mix(in srgb, var(--c) 22%, transparent); }
 .tl-item.study .tl-title { text-transform: none; font-style: italic; letter-spacing: 0; }
 .tl-item.study .tl-note { font-size: 0.85em; }
+
+/* Phones: a thinner strip without the legend (each list entry carries its
+   swatch). Last in the file, to win over the house style's desktop sizes. */
+@media (max-width: 48rem) {
+  :root { --row-h: 7px; --row-gap: 4px; }
+  .tl-legend { display: none; }
+  .tl-plot { margin-left: 4.4rem; }
+  .tl-row-label { font-size: 0.6rem; }
+}

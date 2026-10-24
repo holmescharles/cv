@@ -17,33 +17,57 @@ CSS = 'style/site.css'
 JS = 'js/timeline.js'
 
 
-# Show the section the link names (or the one holding the subsection it
-# names), mark it and any subsection in the sidebar, lay out its timeline,
-# then scroll to the subsection or to the top.
+# Every section is on the one page. Lay out the timeline, follow links to
+# moved sections, and keep the sidebar marking the section and subsection
+# being read as the page scrolls.
 SCRIPT = """</main>
 <script src="%s"></script>
 <script>
+renderTimelines();
 // The three sections the Timeline replaced keep their links working.
 var MOVED = { education: 'timeline-education', 'supplementary-education': 'timeline-training', employment: 'timeline-employment' };
-function markCurrent() {
-  var id = location.hash.slice(1) || 'intro';
-  if (MOVED[id]) { location.replace('#' + MOVED[id]); return; }
-  var el = document.getElementById(id);
-  var top = el && el.closest('main > section');
-  if (!top) { id = 'intro'; el = top = document.getElementById('intro'); }
-  document.querySelectorAll('nav.site a').forEach(function (a) {
-    var href = a.getAttribute('href').slice(1);
-    if (a.classList.contains('name')) return;
-    if (href === top.id) { a.setAttribute('aria-current', 'page'); a.scrollIntoView({ inline: 'center', block: 'nearest' }); }
-    else a.removeAttribute('aria-current');
-    a.classList.toggle('here', href === id && id !== top.id);
-  });
-  renderTimelines();
-  if (el === top) window.scrollTo(0, 0);
-  else el.scrollIntoView({ block: 'start' });
+function follow() {
+  var id = location.hash.slice(1);
+  if (MOVED[id]) location.replace('#' + MOVED[id]);
 }
-window.addEventListener('hashchange', markCurrent);
-markCurrent();
+window.addEventListener('hashchange', follow);
+follow();
+
+var links = Array.prototype.slice.call(document.querySelectorAll('nav.site li a'));
+var targets = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
+var current = null;
+function spy() {
+  // The section being read is the last one whose top has passed a line a
+  // third of the way down the window below the pinned strip; at the very
+  // bottom, the last one.
+  var strip = document.querySelector('.tl-strip');
+  var under = strip ? strip.getBoundingClientRect().bottom : 0;
+  var line = under + (window.innerHeight - under) / 3, top = null, sub = null;
+  var atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+  targets.forEach(function (t, k) {
+    if (!t || (t.getBoundingClientRect().top > line && !atEnd)) return;
+    if (links[k].closest('ul.sub')) { if (top && top.contains(t)) sub = links[k]; }
+    else { top = t; sub = null; }
+  });
+  if (window.scrollY < 2) { top = targets[0]; sub = null; }  // the top of the page is About
+  var key = (top && top.id) + '/' + (sub && sub.getAttribute('href'));
+  if (key === current) return;
+  current = key;
+  links.forEach(function (a) {
+    var on = top && a.getAttribute('href') === '#' + top.id;
+    if (on) { a.setAttribute('aria-current', 'location'); a.scrollIntoView({ inline: 'center', block: 'nearest' }); }
+    else a.removeAttribute('aria-current');
+    a.classList.toggle('here', a === sub);
+  });
+}
+var ticking = false;
+window.addEventListener('scroll', function () {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(function () { ticking = false; spy(); });
+}, { passive: true });
+window.addEventListener('resize', spy);
+spy();
 </script>
 </body>"""
 

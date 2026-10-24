@@ -1,11 +1,13 @@
-// Turn a section's dated lists (<dl>: <dt>years</dt><dd>entry</dd>) into
-// readable lists under one horizontal timeline strip. The strip draws, years
-// to scale left to right, each degree as a diamond on the top row, training
-// as bars on the rows below, and jobs as bars on the rows below those,
-// overlapping spans of one kind in separate rows. A list's kind comes from
-// its data-kind attribute (degree, training, job), else from its dates. Hovering, focusing or tapping an
-// entry, in a list or on the strip, highlights it in both places and marks
-// its date range on the strip. The <dl>s stay in the page as the fallback.
+// Put every dated entry on the page on one horizontal timeline strip, pinned
+// below the name and contact block. Years run to scale left to right. The
+// Timeline section's dated lists (<dl>: <dt>years</dt><dd>entry</dd>) draw
+// each degree as a diamond on the top row, training as bars on the rows
+// below, and jobs as bars below those, overlapping spans of one kind in
+// separate rows; those lists are rebuilt as readable lists. Every other
+// section gets one grey row of its own, from the years in its entries.
+// Hovering, focusing or tapping an entry, anywhere on the page or on the
+// strip, highlights it in both places and marks its date range on the strip.
+// The <dl>s stay in the page as the fallback.
 (function () {
   var now = new Date();
   var NOW = now.getFullYear() + now.getMonth() / 12;
@@ -31,6 +33,18 @@
   // amber. Giving each kind its own rows keeps it away from those two.
   var TRAINING = ['Training', '#d79921'];
   var KINDS = ['degree', 'training', 'job'];
+  var LABELS = { degree: 'Degrees', training: 'Training', job: 'Jobs' };
+  // The other sections share one grey (Gruvbox fg4): the row label, not a
+  // hue, says which section a mark belongs to. Labels are short to fit the
+  // strip's left margin; a section not listed uses its heading.
+  var OTHER = '#7c6f64';
+  var SHORT = {
+    'honors-and-awards': 'Honors',
+    'teaching-and-mentoring': 'Teaching',
+    'journal-publications': 'Papers',
+    'conference-presentations-and-publications': 'Talks',
+    'extracurricular-activities': 'Activities'
+  };
   function employer(text) {
     for (var k = 0; k < EMPLOYERS.length; k++) if (text.indexOf(EMPLOYERS[k][0]) >= 0) return EMPLOYERS[k];
     return [null, 'Other', '#6b6b70'];
@@ -67,8 +81,36 @@
         : employer(e.html.join(' '));
       e.org = who[1];
       e.color = who[2];
+      e.marks = [{ start: e.start, end: e.end, point: e.point, ongoing: e.ongoing, at: e.start }];
     });
     return entries;
+  }
+
+  // The dated entries of any other section: each list item's years, from its
+  // italic dates ("2019 – 2021", "2025") or, in a bibliography, "(2022)".
+  // An item with several dates gets a mark for each.
+  function collect(sec) {
+    var found = [];
+    sec.querySelectorAll('li').forEach(function (li) {
+      var spans = [];
+      if (li.closest('.bibliography')) {
+        var m = li.textContent.match(/\((\d{4})\)/);
+        if (m) spans.push({ start: +m[1], end: +m[1], point: true });
+      } else {
+        li.querySelectorAll('em').forEach(function (em) {
+          var m = em.textContent.match(/^\s*(\d{4})(?:\s*[–-]+\s*(\d{4}|present))?\s*$/);
+          if (!m) return;
+          spans.push(m[2]
+            ? { start: +m[1], end: m[2] === 'present' ? NOW : +m[2], ongoing: m[2] === 'present' }
+            : { start: +m[1], end: +m[1], point: true });
+        });
+      }
+      if (spans.length) found.push({ li: li, marks: spans });
+    });
+    return found;
+  }
+  function said(m) {
+    return m.point ? '' + m.start : m.start + '–' + (m.ongoing ? 'present' : m.end);
   }
 
   // Split "<strong>Title</strong>, Department, Institution" into tagged
@@ -99,32 +141,62 @@
     return rowEnds.length;
   }
 
-  function build(sec) {
-    if (sec.dataset.timeline) return;
-    sec.dataset.timeline = 'built';
-    var dls = Array.prototype.slice.call(sec.querySelectorAll(':scope > dl'));
+  function build() {
+    var main = document.querySelector('main');
+    if (!main || main.dataset.timeline) return;
+    main.dataset.timeline = 'built';
+    var tl = document.getElementById('timeline');
+    var dls = tl ? Array.prototype.slice.call(tl.querySelectorAll(':scope > dl')) : [];
     var lists = dls.map(parse);
     var entries = [].concat.apply([], lists);
-    if (!entries.length) return;
 
     // Each kind gets its own band of rows, in KINDS order; diamonds share one.
-    var rows = 0;
+    var rows = 0, bands = [];
     KINDS.forEach(function (k) {
       var group = entries.filter(function (e) { return e.kind === k; });
       if (!group.length) return;
       var dots = group.every(function (e) { return e.point; });
       var n = dots ? 1 : assignRows(group);
       group.forEach(function (e) { e.row = (dots ? 0 : e.row) + rows; });
+      bands.push({ label: LABELS[k], from: rows, n: n });
       rows += n;
     });
+
+    // Then one row per other section. Points that share a year spread out
+    // across that year so each stays hoverable.
+    Array.prototype.forEach.call(main.querySelectorAll(':scope > section'), function (sec) {
+      if (sec === tl || sec.id === 'intro') return;
+      var found = collect(sec);
+      if (!found.length) return;
+      var h1 = sec.querySelector('h1');
+      var label = SHORT[sec.id] || (h1 ? h1.textContent : sec.id);
+      var years = {};
+      found.forEach(function (f) {
+        f.marks.forEach(function (m) { if (m.point) (years[m.start] = years[m.start] || []).push(m); });
+      });
+      Object.keys(years).forEach(function (y) {
+        years[y].forEach(function (m, k) { m.at = +y + (k + 1) / (years[y].length + 1); });
+      });
+      found.forEach(function (f) {
+        entries.push({
+          kind: 'other', row: rows, color: OTHER, org: label, item: f.li, marks: f.marks,
+          date: f.marks.map(said).join(', ')
+        });
+      });
+      bands.push({ label: label, from: rows, n: 1 });
+      rows++;
+    });
+    if (!entries.length) return;
     entries.forEach(function (e, i) { e.i = i; });
-    var spans = entries.filter(function (e) { return !e.point; });
-    var hasPoints = spans.length < entries.length;
+    var spans = entries.filter(function (e) { return e.kind !== 'other' && !e.point; });
+    var hasPoints = entries.some(function (e) { return e.kind === 'degree'; });
 
     // Years left to right; half a year of room around a diamond.
-    var lo = Math.floor(Math.min.apply(null, entries.map(function (e) { return e.point ? e.start - 0.5 : e.start; })));
-    var hi = Math.ceil(Math.max.apply(null, entries.map(function (e) { return e.point ? e.start + 0.5 : e.end; })));
+    var all = [].concat.apply([], entries.map(function (e) { return e.marks; }));
+    var lo = Math.floor(Math.min.apply(null, all.map(function (m) { return m.point ? m.at - 0.5 : m.start; })));
+    var hi = Math.ceil(Math.max.apply(null, all.map(function (m) { return m.point ? m.at + 0.5 : m.end; })));
     var x = function (t) { return (t - lo) / (hi - lo) * 100 + '%'; };
+    var rowTop = function (r) { return 'calc(' + r + ' * (var(--row-h) + var(--row-gap)))'; };
 
     // The strip: legend, then the plot.
     var strip = document.createElement('div');
@@ -133,19 +205,28 @@
     spans.forEach(function (e) { if (!seen.some(function (o) { return o.org === e.org; })) seen.push(e); });
     // Jobs' employers first, then Training, as on the strip from the bottom up.
     seen.sort(function (a, b) { return (a.kind === 'training') - (b.kind === 'training'); });
-    var mixed = hasPoints && spans.length > 0;
-    if (seen.length > 1 || mixed) {
+    if (seen.length > 1 || hasPoints) {
       var legend = document.createElement('ul');
       legend.className = 'tl-legend';
       legend.innerHTML = seen.map(function (e) {
         return '<li><span class="tl-swatch" style="--c:' + e.color + '"></span>' + e.org + '</li>';
-      }).join('') + (mixed ? '<li><span class="tl-diamond" style="--c:' + DEGREE[1] + '"></span>' + DEGREE[0] + '</li>' : '');
+      }).join('') + (hasPoints ? '<li><span class="tl-diamond" style="--c:' + DEGREE[1] + '"></span>' + DEGREE[0] + '</li>' : '');
       strip.appendChild(legend);
     }
     var plot = document.createElement('div');
     plot.className = 'tl-plot';
-    plot.style.height = 'calc(' + rows + ' * (var(--row-h) + 5px))';
+    plot.style.height = rowTop(rows);
     strip.appendChild(plot);
+
+    // A label for each band of rows, in the plot's left margin.
+    bands.forEach(function (b) {
+      var lab = document.createElement('div');
+      lab.className = 'tl-row-label';
+      lab.style.top = rowTop(b.from);
+      lab.style.height = 'calc(' + b.n + ' * (var(--row-h) + var(--row-gap)) - var(--row-gap))';
+      lab.textContent = b.label;
+      plot.appendChild(lab);
+    });
 
     // A tick each year; labels every other year, every fourth on a phone.
     for (var yr = lo; yr <= hi; yr++) {
@@ -160,89 +241,96 @@
     plot.appendChild(band);
 
     var marks = entries.map(function (e) {
-      var m = document.createElement('div');
-      m.className = 'tl-mark' + (e.point ? ' point' : '') + (e.ongoing ? ' ongoing' : '');
-      m.dataset.i = e.i;
-      m.style.setProperty('--c', e.color);
-      m.style.top = 'calc(' + e.row + ' * (var(--row-h) + 5px))';
-      m.style.left = x(e.start);
-      if (!e.point) m.style.width = 'calc(' + x(e.end) + ' - ' + x(e.start) + ' - 2px)';
-      m.title = e.date;
-      plot.appendChild(m);
-      return m;
+      return e.marks.map(function (s) {
+        var m = document.createElement('div');
+        m.className = 'tl-mark' + (e.kind === 'other' ? ' other' : '') + (s.point ? ' point' : '') + (s.ongoing ? ' ongoing' : '');
+        m.dataset.i = e.i;
+        m.style.setProperty('--c', e.color);
+        m.style.top = rowTop(e.row);
+        m.style.left = x(s.point ? s.at : s.start);
+        if (!s.point) m.style.width = 'calc(' + x(s.end) + ' - ' + x(s.start) + ' - 2px)';
+        m.title = e.date;
+        plot.appendChild(m);
+        return m;
+      });
     });
-    sec.insertBefore(strip, sec.querySelector(':scope > h2') || dls[0]);
+    var intro = document.getElementById('intro');
+    main.insertBefore(strip, intro ? intro.nextSibling : main.firstChild);
 
-    // The lists, one per <dl>, each in its own order.
-    var items = [];
+    // The Timeline's lists, one per <dl>, each in its own order.
     dls.forEach(function (dl, k) {
       var ul = document.createElement('ul');
       ul.className = 'tl-list';
       lists[k].forEach(function (e) {
         var li = document.createElement('li');
         li.className = 'tl-item' + (e.kind === 'job' ? '' : ' study');
-        li.dataset.i = e.i;
-        li.tabIndex = 0;
         li.style.setProperty('--c', e.color);
         li.innerHTML = '<div class="tl-date">' + e.date + '</div>' +
           e.html.map(function (h, j) { return j ? '<div class="tl-note">' + h + '</div>' : '<div class="tl-what">' + parts(h) + '</div>'; }).join('');
         ul.appendChild(li);
-        items[e.i] = li;
+        e.item = li;
       });
       dl.parentNode.insertBefore(ul, dl);
       dl.classList.add('tl-source');
+    });
+    // Every entry, wherever it sits, answers to the strip.
+    entries.forEach(function (e) {
+      e.item.dataset.i = e.i;
+      e.item.tabIndex = 0;
+      if (e.kind === 'other') { e.item.classList.add('tl-hot'); e.item.style.setProperty('--c', e.color); }
     });
 
     var active = null;
     function show(i) {
       if (i === active) return;
-      if (active !== null) { marks[active].classList.remove('on'); items[active].classList.remove('on'); }
+      if (active !== null) {
+        marks[active].forEach(function (m) { m.classList.remove('on'); });
+        entries[active].item.classList.remove('on');
+      }
       active = i;
       strip.classList.toggle('active', i !== null);
       if (i === null) return;
       var e = entries[i];
-      marks[i].classList.add('on');
-      items[i].classList.add('on');
+      marks[i].forEach(function (m) { m.classList.add('on'); });
+      e.item.classList.add('on');
+      // One band from the entry's first date to its last.
+      var a = Math.min.apply(null, e.marks.map(function (s) { return s.point ? s.at : s.start; }));
+      var b = Math.max.apply(null, e.marks.map(function (s) { return s.point ? s.at : s.end; }));
+      var point = a === b;
       band.style.setProperty('--c', e.color);
-      band.style.left = x(e.start);
-      band.style.width = e.point ? '0px' : 'calc(' + x(e.end) + ' - ' + x(e.start) + ')';
-      var to = e.ongoing ? 'present' : e.end;
-      band.innerHTML = e.point || e.end - e.start <= 1
+      band.style.left = x(a);
+      band.style.width = point ? '0px' : 'calc(' + x(b) + ' - ' + x(a) + ')';
+      var first = e.marks[0], last = e.marks[e.marks.length - 1];
+      band.innerHTML = point || b - a <= 1
         ? '<span class="at">' + e.date + '</span>'
-        : '<span class="from">' + e.start + '</span><span class="to">' + to + '</span>';
+        : '<span class="from">' + first.start + '</span><span class="to">' + (last.ongoing ? 'present' : last.end) + '</span>';
     }
-    function pick(ev) { var n = ev.target.closest('[data-i]'); return n ? +n.dataset.i : null; }
-    [plot].concat(items).forEach(function (el) {
-      el.addEventListener('mouseover', function (ev) { var i = pick(ev); if (i !== null) show(i); });
-      el.addEventListener('mouseleave', function () { show(null); });
-    });
-    items.forEach(function (li) {
-      li.addEventListener('focus', function () { show(+li.dataset.i); });
-      li.addEventListener('blur', function () { show(null); });
-    });
+    function pick(ev) { var n = ev.target.closest && ev.target.closest('[data-i]'); return n ? +n.dataset.i : null; }
+    main.addEventListener('mouseover', function (ev) { show(pick(ev)); });
+    main.addEventListener('mouseleave', function () { show(null); });
+    main.addEventListener('focusin', function (ev) { show(pick(ev)); });
+    main.addEventListener('focusout', function () { show(null); });
     // Taps: highlight an entry and keep it until the next tap; a tap on a
     // strip mark also brings its entry into view.
-    sec.addEventListener('click', function (ev) {
+    main.addEventListener('click', function (ev) {
       var i = pick(ev);
       show(i);
-      if (i !== null && ev.target.closest('.tl-mark')) items[i].scrollIntoView({ block: 'center', behavior: 'smooth' });
+      if (i !== null && ev.target.closest('.tl-mark')) entries[i].item.scrollIntoView({ block: 'center', behavior: 'smooth' });
     });
   }
 
   // Pin the strip below the phone's header bar, whose height varies, and
-  // record the visible strip's height so jumps to a list land below it.
+  // record the strip's height so jumps land below it.
   function pinTop() {
     var nav = document.querySelector('nav.site');
     var top = nav && getComputedStyle(nav).position === 'sticky' ? nav.offsetHeight : 0;
     document.documentElement.style.setProperty('--strip-top', top + 'px');
-    var strip = Array.prototype.find.call(document.querySelectorAll('.tl-strip'), function (s) { return s.offsetParent !== null; });
+    var strip = document.querySelector('.tl-strip');
     if (strip) document.documentElement.style.setProperty('--strip-h', strip.offsetHeight + 'px');
   }
 
   window.renderTimelines = function () {
-    document.querySelectorAll('main > section').forEach(function (sec) {
-      if (sec.querySelector(':scope > dl')) build(sec);
-    });
+    build();
     pinTop();
   };
   window.addEventListener('resize', pinTop);
