@@ -15,17 +15,6 @@ ROOT = Path(__file__).resolve().parent.parent
 CSS = 'style/site.css'
 JS = 'js/timeline.js'
 
-# Short nav labels for the long section titles.
-SHORT = {
-    'Education and Employment': 'Education &amp; Work',
-    'Supplementary Education': 'Training',
-    'Honors and Awards': 'Honors',
-    'Teaching and Mentoring': 'Teaching',
-    'Journal Publications': 'Publications',
-    'Conference Presentations and Publications': 'Conferences',
-    'Extracurricular Activities': 'Extracurricular',
-    'PDF copies': 'PDF',
-}
 
 # Mark the current section's link, keep each section starting at the top,
 # and lay out the timelines in the section now showing.
@@ -71,12 +60,13 @@ def main(path):
     if not m or s.count('<h1>Employment</h1>') != 1:
         sys.exit('site.py: Education or Employment section not found')
     s = s[:m.start()] + s[m.end():]
-    s = s.replace('<h1>Employment</h1>', '<h1>Education and Employment</h1>\n<h2>Education</h2>\n'
+    s = s.replace('<h1>Employment</h1>', '<h1>Education &amp; Employment</h1>\n<h2>Education</h2>\n'
                   + m.group(1) + '\n<h2>Employment</h2>', 1)
 
     links = ['<li><a href="#intro">About</a></li>']
     for sid, title in re.findall(r'<section id="([^"]+)" class="level1">\s*<h1>(.*?)</h1>', s):
-        links.append(f'<li><a href="#{sid}">{SHORT.get(title, title)}</a></li>')
+        # The sidebar names each section exactly as its heading does.
+        links.append(f'<li><a href="#{sid}">{title}</a></li>')
     nav = ('<nav class="site"><a class="name" href="#intro">Chuck Holmes</a><ul>'
            + ''.join(links) + '</ul></nav>\n<main>')
     s = s.replace('<body>\n', '<body>\n' + nav, 1)
