@@ -137,13 +137,21 @@ section li { margin: 0.35rem 0; }
 .tl-plot { position: relative; margin: 0 0.75rem 1.6rem 5.5rem; }
 /* Each band of rows is named in the plot's left margin. */
 .tl-row-label {
-  position: absolute; right: calc(100% + 0.6rem); display: flex; align-items: center;
-  font-size: 0.68rem; line-height: 1; color: var(--muted); white-space: nowrap;
+  position: absolute; top: 0; bottom: 0; right: calc(100% + 0.6rem); display: flex; align-items: center;
+  font-size: 0.6rem; line-height: 1; color: var(--muted); white-space: nowrap; transition: font-size 0.2s, opacity 0.2s;
 }
+/* A band of rows. The band for the section being read is full height; the
+   others shrink to slivers, never shorter than their label. */
+.tl-group {
+  --rh: var(--row-h); --gap: var(--row-gap);
+  position: relative; height: calc(var(--n) * (var(--rh) + var(--gap))); min-height: 0.75rem; transition: height 0.2s;
+}
+.tl-group:not(.here) { --rh: 2px; --gap: 1px; min-height: 0.45rem; }
+.tl-group:not(.here) .tl-row-label { font-size: 0.45rem; opacity: 0.6; }
 /* The other sections' marks, in grey: spans as thin bars. Single dates
    outside the degree row, in any colour, are dots. */
-.tl-mark.other { height: calc(var(--row-h) * 0.45); margin-top: calc(var(--row-h) * 0.275); opacity: 0.7; }
-.tl-mark.dot { width: var(--row-h); height: var(--row-h); margin-top: 0; border-radius: 50%; transform: translateX(-50%); }
+.tl-mark.other { height: calc(var(--rh) * 0.45); margin-top: calc(var(--rh) * 0.275); opacity: 0.7; }
+.tl-mark.dot { width: var(--rh); height: var(--rh); margin-top: 0; border-radius: 50%; transform: translateX(-50%); }
 .tl-hot { border-radius: 4px; transition: background 0.15s; }
 .tl-hot.on { background: color-mix(in srgb, var(--accent) 12%, transparent); }
 .tl-tick { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px solid var(--grid); }
@@ -154,7 +162,7 @@ section li { margin: 0.35rem 0; }
 .tl-tick:not(.label) span { display: none; }
 @media (max-width: 48rem) { .tl-tick.label:not(.label4) span { display: none; } }
 .tl-strip.active .tl-tick span { opacity: 0.25; }
-.tl-mark { position: absolute; height: var(--row-h); border-radius: 3px; background: var(--c); cursor: pointer; transition: opacity 0.15s; }
+.tl-mark { position: absolute; height: var(--rh); border-radius: 3px; background: var(--c); cursor: pointer; transition: opacity 0.15s, top 0.2s, height 0.2s, width 0.2s; }
 .tl-mark.ongoing { background: linear-gradient(to right, var(--c) 75%, color-mix(in srgb, var(--c) 20%, transparent)); }
 .tl-strip.active .tl-mark:not(.on) { opacity: 0.18; }
 .tl-mark.on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--c); }
@@ -171,7 +179,7 @@ section li { margin: 0.35rem 0; }
 .tl-band .from { left: 0; transform: translateX(-50%); }
 .tl-band .to { right: 0; transform: translateX(50%); }
 .tl-band .at { left: 50%; transform: translateX(-50%); }
-@media (prefers-reduced-motion: reduce) { .tl-mark { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .tl-mark, .tl-group, .tl-row-label { transition: none; } }
 
 .tl-list { list-style: none; padding: 0; margin: 0 0 1rem; display: grid; gap: 0.3rem; }
 section .tl-list li { margin: 0; }
@@ -195,7 +203,7 @@ section .tl-list li { margin: 0; }
 @font-face { font-family: '0xProto'; src: url(../fonts/0xProto-Bold.woff2) format('woff2'); font-weight: 700; font-display: block; }
 @font-face { font-family: '0xProto'; src: url(../fonts/0xProto-Italic.woff2) format('woff2'); font-weight: 400; font-style: italic; font-display: block; }
 
-:root { --accent: #427b58; --row-h: 9px; --row-gap: 5px; }
+:root { --accent: #427b58; --row-h: 6px; --row-gap: 3px; }
 body { font-family: '0xProto', ui-monospace, monospace; font-size: 15px; line-height: 1.55; }
 section > h1, #intro .title, nav.site .name { font-family: '0xProto', ui-monospace, monospace; }
 section > h1 { font-size: 2.4rem; font-weight: 700; }
@@ -217,16 +225,11 @@ nav.site { background: var(--bg); border-right: none; }
 /* Degrees and training, set apart from jobs: degrees are diamonds on the
    strip, and both get list items in a tinted panel with an italic,
    normal-case title. */
-.tl-mark.point:not(.dot) { width: 10px; height: 10px; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
+.tl-mark.point:not(.dot) { width: calc(var(--rh) + 1px); height: calc(var(--rh) + 1px); transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
 .tl-item.study { border-left-color: var(--c); background: color-mix(in srgb, var(--c) 9%, transparent); }
 .tl-item.study.on { background: color-mix(in srgb, var(--c) 22%, transparent); }
 .tl-item.study .tl-title { text-transform: none; font-style: italic; letter-spacing: 0; }
 .tl-item.study .tl-note { font-size: 0.85em; }
 
-/* Phones: a thinner strip. Last in the file, to win over the house style's
-   desktop sizes. */
-@media (max-width: 48rem) {
-  :root { --row-h: 7px; --row-gap: 4px; }
-  .tl-plot { margin-left: 4.4rem; }
-  .tl-row-label { font-size: 0.6rem; }
-}
+/* Phones: a narrower label margin. */
+@media (max-width: 48rem) { .tl-plot { margin-left: 4.2rem; } }

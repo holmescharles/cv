@@ -37,12 +37,11 @@ var links = Array.prototype.slice.call(document.querySelectorAll('nav.site li a'
 var targets = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
 var current = null;
 function spy() {
-  // The section being read is the last one whose top has passed a line a
-  // third of the way down the window below the pinned strip; at the very
+  // The section being read is the last one whose top has passed a line 40%%
+  // of the way down the window (below the pinned strip, whose height
+  // changes with the section, so the line must not follow it); at the very
   // bottom, the last one.
-  var strip = document.querySelector('.tl-strip');
-  var under = strip ? strip.getBoundingClientRect().bottom : 0;
-  var line = under + (window.innerHeight - under) / 3, top = null, sub = null;
+  var line = window.innerHeight * 0.4, top = null, sub = null;
   var atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
   targets.forEach(function (t, k) {
     if (!t || (t.getBoundingClientRect().top > line && !atEnd)) return;
@@ -53,6 +52,7 @@ function spy() {
   var key = (top && top.id) + '/' + (sub && sub.getAttribute('href'));
   if (key === current) return;
   current = key;
+  focusTimeline(top && top.id, sub && sub.getAttribute('href').slice(1));
   links.forEach(function (a) {
     var on = top && a.getAttribute('href') === '#' + top.id;
     if (on) { a.setAttribute('aria-current', 'location'); a.scrollIntoView({ inline: 'center', block: 'nearest' }); }

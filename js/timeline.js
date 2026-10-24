@@ -34,6 +34,8 @@
   var TRAINING = ['Training', '#d79921'];
   var KINDS = ['degree', 'training', 'job'];
   var LABELS = { degree: 'Degrees', training: 'Training', job: 'Jobs' };
+  // The Timeline subsection each kind's band answers to.
+  var SUBS = { degree: 'timeline-education', training: 'timeline-training', job: 'timeline-employment' };
   // The other sections share one grey (Gruvbox fg4): the row label, not a
   // hue, says which section a mark belongs to. Labels are short to fit the
   // strip's left margin; a section not listed uses its heading.
@@ -162,6 +164,8 @@
     return ends.length;
   }
 
+  var focus = function () {}, remeasure;
+
   function build() {
     var main = document.querySelector('main');
     if (!main || main.dataset.timeline) return;
@@ -179,7 +183,7 @@
       var dots = group.every(function (e) { return e.point; });
       var n = dots ? 1 : assignRows(group);
       group.forEach(function (e) { e.row = (dots ? 0 : e.row) + rows; });
-      bands.push({ label: LABELS[k], from: rows, n: n });
+      bands.push({ label: LABELS[k], from: rows, n: n, sec: 'timeline', sub: SUBS[k] });
       rows += n;
     });
 
@@ -206,7 +210,7 @@
           date: f.marks.map(said).join(', ')
         });
       });
-      bands.push({ label: label, from: rows, n: n });
+      bands.push({ label: label, from: rows, n: n, sec: sec.id });
       rows += n;
     });
     if (!entries.length) return;
@@ -217,7 +221,6 @@
     var lo = Math.floor(Math.min.apply(null, all.map(function (m) { return m.point ? m.at - 0.5 : m.start; })));
     var hi = Math.ceil(Math.max.apply(null, all.map(function (m) { return m.point ? m.at + 0.5 : m.end; })));
     var x = function (t) { return (t - lo) / (hi - lo) * 100 + '%'; };
-    var rowTop = function (r) { return 'calc(' + r + ' * (var(--row-h) + var(--row-gap)))'; };
 
     // The strip. No colour legend: each entry's list item carries its
     // colour, and hovering either one names the other.
@@ -225,18 +228,7 @@
     strip.className = 'tl-strip';
     var plot = document.createElement('div');
     plot.className = 'tl-plot';
-    plot.style.height = rowTop(rows);
     strip.appendChild(plot);
-
-    // A label for each band of rows, in the plot's left margin.
-    bands.forEach(function (b) {
-      var lab = document.createElement('div');
-      lab.className = 'tl-row-label';
-      lab.style.top = rowTop(b.from);
-      lab.style.height = 'calc(' + b.n + ' * (var(--row-h) + var(--row-gap)) - var(--row-gap))';
-      lab.textContent = b.label;
-      plot.appendChild(lab);
-    });
 
     // A tick each year; labels every other year, every fourth on a phone.
     for (var yr = lo; yr <= hi; yr++) {
@@ -250,17 +242,29 @@
     band.className = 'tl-band';
     plot.appendChild(band);
 
+    // Each band of rows is a group, labelled in the plot's left margin; the
+    // stylesheet sizes its rows, so a group can shrink when out of focus.
+    bands.forEach(function (b) {
+      b.el = document.createElement('div');
+      b.el.className = 'tl-group';
+      b.el.style.setProperty('--n', b.n);
+      b.el.innerHTML = '<div class="tl-row-label">' + b.label + '</div>';
+      plot.appendChild(b.el);
+    });
+    function groupOf(r) { return bands.find(function (b) { return r >= b.from && r < b.from + b.n; }); }
+
     var marks = entries.map(function (e) {
       return e.marks.map(function (s) {
         var m = document.createElement('div');
         m.className = 'tl-mark' + (e.kind === 'other' ? ' other' : '') + (s.point ? (e.kind === 'degree' ? ' point' : ' point dot') : '') + (s.ongoing ? ' ongoing' : '');
         m.dataset.i = e.i;
         m.style.setProperty('--c', e.color);
-        m.style.top = rowTop(s.row === undefined ? e.row : s.row);
+        var r = s.row === undefined ? e.row : s.row, g = groupOf(r);
+        m.style.top = 'calc(' + (r - g.from) + ' * (var(--rh) + var(--gap)))';
         m.style.left = x(s.point ? s.at : s.start);
         if (!s.point) m.style.width = 'calc(' + x(s.end) + ' - ' + x(s.start) + ' - 2px)';
         m.title = e.date;
-        plot.appendChild(m);
+        g.el.appendChild(m);
         return m;
       });
     });
@@ -289,6 +293,17 @@
       e.item.tabIndex = 0;
       if (e.kind === 'other') { e.item.classList.add('tl-hot'); e.item.style.setProperty('--c', e.color); }
     });
+
+    // Expand the bands for the section (and subsection) being read; shrink
+    // the rest. On the About section, or one with no band, expand them all.
+    focus = function (sec, sub) {
+      var on = bands.filter(function (b) { return b.sec === sec && (!sub || !b.sub || b.sub === sub); });
+      if (!on.length) on = bands;
+      bands.forEach(function (b) { b.el.classList.toggle('here', on.indexOf(b) >= 0); });
+      clearTimeout(remeasure);
+      remeasure = setTimeout(pinTop, 300);
+    };
+    focus(null);
 
     var active = null;
     function show(i) {
@@ -343,5 +358,6 @@
     build();
     pinTop();
   };
+  window.focusTimeline = function (sec, sub) { focus(sec, sub); };
   window.addEventListener('resize', pinTop);
 })();
