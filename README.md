@@ -15,9 +15,6 @@ validated. The PDFs still use the plain `style/pdf*.css` layout.
 publishes immediately. To preview a change, copy the tracked files somewhere else and
 build there.
 
-`style/web.css` is no longer used by the build, but the page published from `main`
-still links it. Delete it when this design is merged and rebuilt.
-
 ## Requirements
 
 - pandoc
