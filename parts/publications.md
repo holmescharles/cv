@@ -2,6 +2,11 @@
 
 ::: {.bibliography}
 
+- **Holmes CD**, Hong S, Gepshtein S, Snyder LH, Mooshagian E (2026)
+  Reaction-time asymmetry covaries with shifts in hand choice in macaques.
+  bioRxiv. (*preprint*)\
+  [doi:10.64898/2026.10.27.762253](https://doi.org/10.64898/2026.10.27.762253)
+
 - Park J, **Holmes CD**, Snyder LH (2025)
   Compositional architecture: Orthogonal neural codes for task context and spatial memory in prefrontal cortex.
   bioRxiv. (*preprint*)\
