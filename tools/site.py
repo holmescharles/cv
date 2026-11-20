@@ -25,7 +25,7 @@ SCRIPT = """</main>
 <script>
 renderTimelines();
 // The three sections the Timeline replaced keep their links working.
-var MOVED = { education: 'timeline-education', 'supplementary-education': 'timeline-training', training: 'timeline-training', employment: 'timeline-employment' };
+var MOVED = { education: 'timeline-education', 'supplementary-education': 'timeline-training', employment: 'timeline-employment' };
 function follow() {
   var id = location.hash.slice(1);
   if (MOVED[id]) location.replace('#' + MOVED[id]);
@@ -141,9 +141,10 @@ def main(path):
     # Training is a bullet list ("Name[, Institution], <em>years</em>"); make
     # it a dated list, the name in bold as the jobs' titles are.
     def dated(m):
-        name, _, rest = m.group(1).partition(', ')
+        # pandoc may wrap a long item across lines; join it back up.
+        name, _, rest = ' '.join(m.group(1).split()).partition(', ')
         return f'<dt>{m.group(2)}</dt>\n<dd><strong>{name}</strong>' + (f', {rest}' if rest else '') + '</dd>'
-    training = '<dl>\n' + re.sub(r'<li>(.*?),\s*<em>([^<]*)</em></li>', dated, sup[1]).strip() + '\n</dl>'
+    training = '<dl>\n' + re.sub(r'<li>([^<]*?),\s*<em>([^<]*)</em></li>', dated, sup[1]).strip() + '\n</dl>'
     jobs = re.search(r'<section id="employment" class="level1">\s*<h1>Employment</h1>\s*(<dl>.*?</dl>)', s, flags=re.S)
     if not jobs:
         sys.exit('site.py: Employment section not found')

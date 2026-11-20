@@ -28,6 +28,8 @@ index.html: $(html_parts) style/site.css js/timeline.js tools/site.py
 		--metadata pagetitle="Chuck Holmes — CV" --output="$@" $(html_parts)
 	python3 tools/site.py "$@"
 
-pdfs/%.pdf: $(pdf_parts)
+pdf_styles = style/pdf.css style/preamble.css style/descriptions.css style/bibliography.css
+
+pdfs/%.pdf: $(pdf_parts) style/pdf-%.css $(pdf_styles)
 	mkdir -p "$(dir $@)"
-	pandoc --css="style/pdf-$*.css" --pdf-engine=weasyprint --output="$@" $^
+	pandoc --css="style/pdf-$*.css" --pdf-engine=weasyprint --output="$@" $(pdf_parts)
