@@ -143,8 +143,12 @@ def main(path):
     def dated(m):
         # pandoc may wrap a long item across lines; join it back up.
         name, _, rest = ' '.join(m.group(1).split()).partition(', ')
-        return f'<dt>{m.group(2)}</dt>\n<dd><strong>{name}</strong>' + (f', {rest}' if rest else '') + '</dd>'
-    training = '<dl>\n' + re.sub(r'<li>([^<]*?),\s*<em>([^<]*)</em></li>', dated, sup[1]).strip() + '\n</dl>'
+        years = ' '.join(m.group(2).split())
+        return f'<dt>{years}</dt>\n<dd><strong>{name}</strong>' + (f', {rest}' if rest else '') + '</dd>'
+    items, n = re.subn(r'<li>((?:(?!</?li>).)*?),\s*<em>([^<]*)</em></li>', dated, sup[1], flags=re.S)
+    if n != sup[1].count('<li>'):
+        sys.exit('site.py: a Training item is not "Name[, Institution], <em>years</em>"')
+    training = '<dl>\n' + items.strip() + '\n</dl>'
     jobs = re.search(r'<section id="employment" class="level1">\s*<h1>Employment</h1>\s*(<dl>.*?</dl>)', s, flags=re.S)
     if not jobs:
         sys.exit('site.py: Employment section not found')
