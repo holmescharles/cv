@@ -5,7 +5,7 @@
 Build this cv with `make`. That will create `index.html` and `pdfs/{sans-,}serif.pdf`.
 
 The web page is one scrolling page: pandoc writes it, `tools/site.py` gathers
-Education, Supplementary Education and Employment into a Timeline section and adds
+Education, Training and Employment into a Timeline section and adds
 the sidebar, which follows the scroll. `js/timeline.js` draws every dated entry on
 the page on one pinned timeline strip. The colours, light and dark (the dark set
 follows the system setting), are tokens in `style/site.css`, with how each set was

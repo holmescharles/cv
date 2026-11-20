@@ -1,11 +1,13 @@
 shared_parts = \
 	parts/education.md \
 	parts/employment.md \
-	parts/supplementary-education.md \
+	parts/publications.md \
+	parts/preprints.md \
+	parts/conferences.md \
 	parts/honors.md \
 	parts/teaching.md \
-	parts/publications.md \
-	parts/conferences.md \
+	parts/training.md \
+	parts/service.md \
 	parts/extracurricular.md
 
 html_parts = parts/title-html.md $(shared_parts) parts/print-me.md

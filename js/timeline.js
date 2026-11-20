@@ -39,6 +39,7 @@
     'honors-and-awards': 'Honors',
     'teaching-and-mentoring': 'Teaching',
     'journal-publications': 'Papers',
+    'preprints': 'Preprints',
     'conference-presentations-and-publications': 'Talks',
     'extracurricular-activities': 'Activities'
   };

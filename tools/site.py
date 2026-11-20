@@ -2,7 +2,7 @@
 """Turn pandoc's single-page CV into the sidebar site: site.py index.html
 
 Wraps the name and contact links into an About section, gathers Education,
-Supplementary Education and Employment into one Timeline section, builds the
+Training and Employment into one Timeline section, builds the
 sidebar from the section headings (subsections nested under their section),
 adds the timeline script, and stamps the CSS and script links with a content
 hash so a rebuild is never served from cache.
@@ -25,7 +25,7 @@ SCRIPT = """</main>
 <script>
 renderTimelines();
 // The three sections the Timeline replaced keep their links working.
-var MOVED = { education: 'timeline-education', 'supplementary-education': 'timeline-training', employment: 'timeline-employment' };
+var MOVED = { education: 'timeline-education', 'supplementary-education': 'timeline-training', training: 'timeline-training', employment: 'timeline-employment' };
 function follow() {
   var id = location.hash.slice(1);
   if (MOVED[id]) location.replace('#' + MOVED[id]);
@@ -136,7 +136,7 @@ def main(path):
     # The PDFs keep the three sections apart.
     edu = take(s, 'education', 'Education', r'(<dl>.*?</dl>)')
     s = edu[0]
-    sup = take(s, 'supplementary-education', 'Supplementary Education', r'<ul>(.*?)</ul>')
+    sup = take(s, 'training', 'Training', r'<ul>(.*?)</ul>')
     s = sup[0]
     # Training is a bullet list ("Name[, Institution], <em>years</em>"); make
     # it a dated list, the name in bold as the jobs' titles are.
@@ -149,7 +149,7 @@ def main(path):
         sys.exit('site.py: Employment section not found')
     s = (s[:jobs.start()] + '<section id="timeline" class="level1">\n<h1>Timeline</h1>\n'
          + '<h2 id="timeline-education">Education</h2>\n' + kind(edu[1], 'degree')
-         + '\n<h2 id="timeline-training">Supplementary Education</h2>\n' + kind(training, 'training')
+         + '\n<h2 id="timeline-training">Training</h2>\n' + kind(training, 'training')
          + '\n<h2 id="timeline-employment">Employment</h2>\n' + kind(jobs.group(1), 'job') + s[jobs.end():])
 
     # The sidebar names each section exactly as its heading does, with its
