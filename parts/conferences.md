@@ -7,6 +7,10 @@
   In: Simian Collective, Pittsburgh, PA.
 
 - **Holmes CD**, Hong S, Gepshtein S, Snyder LH, Mooshagian E (2025)
+  A non-human primate model for limb selection.
+  In: Society for Neuroscience, San Diego, CA.
+
+- **Holmes CD**, Hong S, Gepshtein S, Snyder LH, Mooshagian E (2025)
   A non-human primate model of limb selection.
   In: Society for the Neural Control of Movement, Panama City, Panama.
 
