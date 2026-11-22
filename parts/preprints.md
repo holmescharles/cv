@@ -14,7 +14,7 @@
 
 - Park J, **Holmes CD**, Snyder LH (2025)
   Compositional architecture: Orthogonal neural codes for task context and spatial memory in prefrontal cortex.
-  bioRxiv.\
+  bioRxiv. Under revision at PLOS Biology.\
   [doi:10.1101/2025.02.25.640211](https://doi.org/10.1101/2025.02.25.640211)
 
 :::
